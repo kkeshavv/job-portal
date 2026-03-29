@@ -37,9 +37,7 @@ class JobServiceImplTest {
     @InjectMocks
     private JobServiceImpl jobService;
 
-    // =============================================
     // createJob tests
-    // =============================================
 
     @Test
     void createJob_success() {
@@ -99,9 +97,7 @@ class JobServiceImplTest {
         verify(jobRepository).save(any(Job.class));
     }
 
-    // =============================================
     // getJobById tests
-    // =============================================
 
     @Test
     void getJobById_success() {
@@ -141,9 +137,7 @@ class JobServiceImplTest {
         verify(jobRepository).findById(99L);
     }
 
-    // =============================================
     // getAllJobs tests
-    // =============================================
 
     @Test
     void getAllJobs_returnsPage() {
@@ -168,9 +162,7 @@ class JobServiceImplTest {
         verify(jobRepository).findAll(any(PageRequest.class));
     }
 
-    // =============================================
     // closeJob tests
-    // =============================================
 
     @Test
     void closeJob_success() {

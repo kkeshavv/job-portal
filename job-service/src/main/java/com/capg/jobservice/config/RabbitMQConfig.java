@@ -1,53 +1,96 @@
 package com.capg.jobservice.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMQConfig {
 
-    public static final String EXCHANGE          = "jobportal.exchange";
-    public static final String JOB_CREATED_KEY   = "job.created";
-    public static final String JOB_CLOSED_KEY    = "job.closed";
+    public static final String EXCHANGE        = "jobportal.exchange";
+    public static final String DLX             = "jobportal.dlx";
+    public static final String JOB_CREATED_KEY = "job.created";
+    public static final String JOB_CLOSED_KEY  = "job.closed";
 
-    @Bean
-    public TopicExchange exchange() {
-        return new TopicExchange(EXCHANGE);
+    @Bean public TopicExchange exchange() { return new TopicExchange(EXCHANGE); }
+    @Bean public DirectExchange deadLetterExchange() { return new DirectExchange(DLX); }
+
+    // ── Main Queues ──────────────────────────────────────────────────────────
+
+    @Bean public Queue jobCreatedAnalyticsQueue() {
+        return QueueBuilder.durable("job.created.analytics.queue")
+                .withArgument("x-dead-letter-exchange", DLX)
+                .withArgument("x-dead-letter-routing-key", "job.created.analytics.queue.dlq")
+                .build();
+    }
+    @Bean public Queue jobCreatedNotifyQueue() {
+        return QueueBuilder.durable("job.created.notify.queue")
+                .withArgument("x-dead-letter-exchange", DLX)
+                .withArgument("x-dead-letter-routing-key", "job.created.notify.queue.dlq")
+                .build();
+    }
+    @Bean public Queue jobCreatedSearchQueue() {
+        return QueueBuilder.durable("job.created.search.queue")
+                .withArgument("x-dead-letter-exchange", DLX)
+                .withArgument("x-dead-letter-routing-key", "job.created.search.queue.dlq")
+                .build();
+    }
+    @Bean public Queue jobClosedAnalyticsQueue() {
+        return QueueBuilder.durable("job.closed.analytics.queue")
+                .withArgument("x-dead-letter-exchange", DLX)
+                .withArgument("x-dead-letter-routing-key", "job.closed.analytics.queue.dlq")
+                .build();
+    }
+    @Bean public Queue jobClosedNotifyQueue() {
+        return QueueBuilder.durable("job.closed.notify.queue")
+                .withArgument("x-dead-letter-exchange", DLX)
+                .withArgument("x-dead-letter-routing-key", "job.closed.notify.queue.dlq")
+                .build();
     }
 
-    // job.created — one queue per consumer service
-    @Bean public Queue jobCreatedAnalyticsQueue() { return new Queue("job.created.analytics.queue"); }
-    @Bean public Queue jobCreatedNotifyQueue()    { return new Queue("job.created.notify.queue"); }
-    @Bean public Queue jobCreatedSearchQueue()    { return new Queue("job.created.search.queue"); }
+    // ── DLQs ────────────────────────────────────────────────────────────────
 
-    // job.closed — one queue per consumer service
-    @Bean public Queue jobClosedAnalyticsQueue()  { return new Queue("job.closed.analytics.queue"); }
-    @Bean public Queue jobClosedNotifyQueue()     { return new Queue("job.closed.notify.queue"); }
+    @Bean public Queue jobCreatedAnalyticsDlq() { return new Queue("job.created.analytics.queue.dlq"); }
+    @Bean public Queue jobCreatedNotifyDlq()    { return new Queue("job.created.notify.queue.dlq"); }
+    @Bean public Queue jobCreatedSearchDlq()    { return new Queue("job.created.search.queue.dlq"); }
+    @Bean public Queue jobClosedAnalyticsDlq()  { return new Queue("job.closed.analytics.queue.dlq"); }
+    @Bean public Queue jobClosedNotifyDlq()     { return new Queue("job.closed.notify.queue.dlq"); }
 
-    // Bindings for job.created
-    @Bean
-    public Binding jobCreatedAnalyticsBinding() {
+    // ── Main Bindings ────────────────────────────────────────────────────────
+
+    @Bean public Binding jobCreatedAnalyticsBinding() {
         return BindingBuilder.bind(jobCreatedAnalyticsQueue()).to(exchange()).with(JOB_CREATED_KEY);
     }
-    @Bean
-    public Binding jobCreatedNotifyBinding() {
+    @Bean public Binding jobCreatedNotifyBinding() {
         return BindingBuilder.bind(jobCreatedNotifyQueue()).to(exchange()).with(JOB_CREATED_KEY);
     }
-    @Bean
-    public Binding jobCreatedSearchBinding() {
+    @Bean public Binding jobCreatedSearchBinding() {
         return BindingBuilder.bind(jobCreatedSearchQueue()).to(exchange()).with(JOB_CREATED_KEY);
     }
-
-    // Bindings for job.closed
-    @Bean
-    public Binding jobClosedAnalyticsBinding() {
+    @Bean public Binding jobClosedAnalyticsBinding() {
         return BindingBuilder.bind(jobClosedAnalyticsQueue()).to(exchange()).with(JOB_CLOSED_KEY);
     }
-    @Bean
-    public Binding jobClosedNotifyBinding() {
+    @Bean public Binding jobClosedNotifyBinding() {
         return BindingBuilder.bind(jobClosedNotifyQueue()).to(exchange()).with(JOB_CLOSED_KEY);
+    }
+
+    // ── DLQ Bindings ─────────────────────────────────────────────────────────
+
+    @Bean public Binding jobCreatedAnalyticsDlqBinding() {
+        return BindingBuilder.bind(jobCreatedAnalyticsDlq()).to(deadLetterExchange()).with("job.created.analytics.queue.dlq");
+    }
+    @Bean public Binding jobCreatedNotifyDlqBinding() {
+        return BindingBuilder.bind(jobCreatedNotifyDlq()).to(deadLetterExchange()).with("job.created.notify.queue.dlq");
+    }
+    @Bean public Binding jobCreatedSearchDlqBinding() {
+        return BindingBuilder.bind(jobCreatedSearchDlq()).to(deadLetterExchange()).with("job.created.search.queue.dlq");
+    }
+    @Bean public Binding jobClosedAnalyticsDlqBinding() {
+        return BindingBuilder.bind(jobClosedAnalyticsDlq()).to(deadLetterExchange()).with("job.closed.analytics.queue.dlq");
+    }
+    @Bean public Binding jobClosedNotifyDlqBinding() {
+        return BindingBuilder.bind(jobClosedNotifyDlq()).to(deadLetterExchange()).with("job.closed.notify.queue.dlq");
     }
 
     @Bean
