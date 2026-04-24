@@ -6,6 +6,7 @@ import com.capg.applicationservice.dto.response.ApplicationResponse;
 import com.capg.applicationservice.entity.Application;
 import com.capg.applicationservice.entity.ApplicationStatus;
 import com.capg.applicationservice.exception.AlreadyAppliedException;
+import com.capg.applicationservice.exception.AlreadyRejectedException;
 import com.capg.applicationservice.exception.ResourceNotFoundException;
 import com.capg.applicationservice.exception.UnauthorizedException;
 import com.capg.applicationservice.repository.ApplicationRepository;
@@ -223,8 +224,8 @@ class ApplicationServiceImplTest {
         when(repository.findById(appId)).thenReturn(Optional.of(app));
 
         // Act & Assert
-        RuntimeException ex = assertThrows(
-                RuntimeException.class,
+        AlreadyRejectedException ex = assertThrows(
+                AlreadyRejectedException.class,
                 () -> applicationService.updateStatus(appId, "SHORTLISTED", "RECRUITER")
         );
 
