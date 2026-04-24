@@ -11,11 +11,15 @@ import com.capg.resumeservice.service.impl.ResumeServiceImpl;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.util.ReflectionTestUtils;
 
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -195,9 +199,47 @@ class ResumeServiceImplTest {
     // uploadResumeFile tests
 
     @Test
+    void uploadResumeFile_success(@TempDir Path tempDir) {
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "test.pdf", "application/pdf", "pdf content".getBytes());
+
+        Resume saved = buildResume(1L, "seeker@test.com");
+        ResumeResponse expected = buildResponse(1L, "seeker@test.com");
+
+        ReflectionTestUtils.setField(resumeService, "uploadDir", tempDir.toString());
+        when(resumeRepository.save(any(Resume.class))).thenReturn(saved);
+        when(resumeMapper.toResponse(saved)).thenReturn(expected);
+
+        ResumeResponse response = resumeService.uploadResumeFile(file, "seeker@test.com", "JOB_SEEKER");
+
+        assertNotNull(response);
+        assertEquals(1L, response.getResumeId());
+        verify(resumeRepository).save(any(Resume.class));
+    }
+
+    @Test
+    void uploadResumeFile_docxExtension_success(@TempDir Path tempDir) {
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "test.docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "docx content".getBytes());
+
+        Resume saved = buildResume(1L, "seeker@test.com");
+        ResumeResponse expected = buildResponse(1L, "seeker@test.com");
+
+        ReflectionTestUtils.setField(resumeService, "uploadDir", tempDir.toString());
+        when(resumeRepository.save(any(Resume.class))).thenReturn(saved);
+        when(resumeMapper.toResponse(saved)).thenReturn(expected);
+
+        ResumeResponse response = resumeService.uploadResumeFile(file, "seeker@test.com", "JOB_SEEKER");
+
+        assertNotNull(response);
+        verify(resumeRepository).save(any(Resume.class));
+    }
+
+    @Test
     void uploadResumeFile_notJobSeeker_throwsException() {
-        org.springframework.mock.web.MockMultipartFile file =
-                new org.springframework.mock.web.MockMultipartFile("file", "test.pdf", "application/pdf", "content".getBytes());
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "test.pdf", "application/pdf", "content".getBytes());
 
         assertThrows(UnauthorizedException.class,
                 () -> resumeService.uploadResumeFile(file, "recruiter@test.com", "RECRUITER"));
@@ -207,8 +249,8 @@ class ResumeServiceImplTest {
 
     @Test
     void uploadResumeFile_emptyFile_throwsException() {
-        org.springframework.mock.web.MockMultipartFile file =
-                new org.springframework.mock.web.MockMultipartFile("file", "test.pdf", "application/pdf", new byte[0]);
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "test.pdf", "application/pdf", new byte[0]);
 
         assertThrows(IllegalArgumentException.class,
                 () -> resumeService.uploadResumeFile(file, "seeker@test.com", "JOB_SEEKER"));
@@ -216,8 +258,8 @@ class ResumeServiceImplTest {
 
     @Test
     void uploadResumeFile_invalidExtension_throwsException() {
-        org.springframework.mock.web.MockMultipartFile file =
-                new org.springframework.mock.web.MockMultipartFile("file", "test.txt", "text/plain", "content".getBytes());
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "test.txt", "text/plain", "content".getBytes());
 
         assertThrows(IllegalArgumentException.class,
                 () -> resumeService.uploadResumeFile(file, "seeker@test.com", "JOB_SEEKER"));

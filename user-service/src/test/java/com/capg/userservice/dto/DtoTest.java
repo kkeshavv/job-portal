@@ -32,6 +32,11 @@ class DtoTest {
         UserLoginRequest req = new UserLoginRequest("john@test.com", "pass123");
         assertEquals("john@test.com", req.getEmail());
         assertEquals("pass123", req.getPassword());
+
+        req.setEmail("jane@test.com");
+        req.setPassword("newpass");
+        assertEquals("jane@test.com", req.getEmail());
+        assertEquals("newpass", req.getPassword());
     }
 
     @Test
