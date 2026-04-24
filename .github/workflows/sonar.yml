@@ -31,22 +31,14 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Compile all services
-        run: |
-          for service in user-service job-service application-service resume-service notification-service search-service analytics-service; do
-            echo "Compiling $service..."
-            cd $service && chmod +x mvnw && ./mvnw -B compile -DskipTests -Dspring.cloud.config.enabled=false -q && cd ..
-          done
-
-      - name: Run SonarCloud Analysis
+      - name: Build and Analyze all services
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          ./user-service/mvnw -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.projectKey=kkeshavv_job-portal \
             -Dsonar.projectName=job-portal \
             -Dsonar.organization=kkeshavv \
-            -Dsonar.sources=user-service/src/main/java,job-service/src/main/java,application-service/src/main/java,resume-service/src/main/java,notification-service/src/main/java,search-service/src/main/java,analytics-service/src/main/java \
-            -Dsonar.java.binaries=user-service/target/classes,job-service/target/classes,application-service/target/classes,resume-service/target/classes,notification-service/target/classes,search-service/target/classes,analytics-service/target/classes \
-            -Dsonar.spring.cloud.config.enabled=false \
-            -f user-service/pom.xml
+            -DskipTests \
+            -Dspring.cloud.config.enabled=false \
+            -f pom.xml
