@@ -30,13 +30,13 @@ public class JobController {
             @Valid @RequestBody JobRequest request,
             @Parameter(hidden = true) @RequestHeader("X-User-Email") String email,
             @Parameter(hidden = true) @RequestHeader("X-User-Role") String role) {
-        log.info("POST /api/jobs recruiter={}", email);
+        log.info("POST /api/jobs recruiter={}", sanitize(email));
         return ResponseEntity.ok(jobService.createJob(request, email, role));
     }
 
     @GetMapping("/{jobId}")
     public ResponseEntity<JobResponse> getJob(@PathVariable Long jobId) {
-        log.info("GET /api/jobs/{}", jobId);
+        log.info("GET /api/jobs/{}", jobId); // jobId is Long, safe
         return ResponseEntity.ok(jobService.getJobById(jobId));
     }
 
@@ -52,7 +52,11 @@ public class JobController {
     public ResponseEntity<JobResponse> closeJob(
             @PathVariable Long id,
             @Parameter(hidden = true) @RequestHeader("X-User-Role") String role) {
-        log.info("PUT /api/jobs/{}/close", id);
+        log.info("PUT /api/jobs/{}/close", id); // id is Long, safe
         return ResponseEntity.ok(jobService.closeJob(id, role));
+    }
+
+    private static String sanitize(String value) {
+        return value == null ? "" : value.replaceAll("[\r\n]", "_");
     }
 }

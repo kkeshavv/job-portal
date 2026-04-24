@@ -50,10 +50,10 @@ public class ResumeServiceImpl implements ResumeService {
     @Transactional
     public ResumeResponse uploadResume(ResumeUploadRequest request, String email, String role) {
         if (!"JOB_SEEKER".equals(role)) {
-            log.warn("Unauthorized resume upload attempt email={} role={}", email, role);
+            log.warn("Unauthorized resume upload attempt email={} role={}", sanitize(email), sanitize(role));
             throw new UnauthorizedException("Only job seekers can upload resumes");
         }
-        log.info("Uploading resume userEmail={} fileUrl={}", email, request.getFileUrl());
+        log.info("Uploading resume userEmail={} fileUrl={}", sanitize(email), request.getFileUrl());
 
         Resume resume = new Resume();
         resume.setUserEmail(email);
@@ -61,7 +61,7 @@ public class ResumeServiceImpl implements ResumeService {
         resume.setUploadedAt(LocalDateTime.now());
 
         Resume saved = resumeRepository.save(resume);
-        log.info("Resume saved resumeId={} userEmail={}", saved.getResumeId(), email);
+        log.info("Resume saved resumeId={} userEmail={}", saved.getResumeId(), sanitize(email));
 
         try {
             ResumeEvent event = new ResumeEvent(
@@ -88,7 +88,7 @@ public class ResumeServiceImpl implements ResumeService {
                 });
 
         if (role.equals("JOB_SEEKER") && !resume.getUserEmail().equals(email)) {
-            log.warn("Unauthorized resume access resumeId={} email={}", resumeId, email);
+            log.warn("Unauthorized resume access resumeId={} email={}", resumeId, sanitize(email));
             throw new UnauthorizedException("You can only view your own resumes");
         }
 
@@ -97,7 +97,7 @@ public class ResumeServiceImpl implements ResumeService {
 
     @Override
     public List<ResumeResponse> getMyResumes(String email) {
-        log.debug("Fetching resumes userEmail={}", email);
+        log.debug("Fetching resumes userEmail={}", sanitize(email));
         return resumeRepository.findByUserEmail(email)
                 .stream()
                 .map(resumeMapper::toResponse)
@@ -108,10 +108,10 @@ public class ResumeServiceImpl implements ResumeService {
     @Transactional
     public ResumeResponse uploadResumeFile(MultipartFile file, String email, String role) {
         if (!"JOB_SEEKER".equals(role)) {
-            log.warn("Unauthorized resume file upload attempt email={} role={}", email, role);
+            log.warn("Unauthorized resume file upload attempt email={} role={}", sanitize(email), sanitize(role));
             throw new UnauthorizedException("Only job seekers can upload resumes");
         }
-        log.info("Uploading resume file userEmail={} fileName={}", email, file.getOriginalFilename());
+        log.info("Uploading resume file userEmail={} fileName={}", sanitize(email), file.getOriginalFilename());
 
         if (file.isEmpty()) {
             throw new IllegalArgumentException("File cannot be empty");
@@ -146,7 +146,7 @@ public class ResumeServiceImpl implements ResumeService {
             resume.setUploadedAt(LocalDateTime.now());
 
             Resume saved = resumeRepository.save(resume);
-            log.info("Resume file saved resumeId={} userEmail={}", saved.getResumeId(), email);
+            log.info("Resume file saved resumeId={} userEmail={}", saved.getResumeId(), sanitize(email));
 
             try {
                 ResumeEvent event = new ResumeEvent(
@@ -163,7 +163,7 @@ public class ResumeServiceImpl implements ResumeService {
             return resumeMapper.toResponse(saved);
 
         } catch (IOException e) {
-            log.error("File upload failed userEmail={}", email, e);
+            log.error("File upload failed userEmail={}", sanitize(email), e);
             throw new RuntimeException("Failed to store file");
         }
     }
@@ -171,16 +171,20 @@ public class ResumeServiceImpl implements ResumeService {
     @Override
     @Transactional
     public void deleteResume(Long resumeId, String email) {
-        log.info("Deleting resume resumeId={} userEmail={}", resumeId, email);
+        log.info("Deleting resume resumeId={} userEmail={}", resumeId, sanitize(email));
         Resume resume = resumeRepository.findById(resumeId)
                 .orElseThrow(() -> new ResumeNotFoundException("Resume not found"));
 
         if (!resume.getUserEmail().equals(email)) {
-            log.warn("Unauthorized delete attempt resumeId={} email={}", resumeId, email);
+            log.warn("Unauthorized delete attempt resumeId={} email={}", resumeId, sanitize(email));
             throw new UnauthorizedException("You can only delete your own resumes");
         }
 
         resumeRepository.delete(resume);
         log.info("Resume deleted resumeId={}", resumeId);
+    }
+
+    private static String sanitize(String value) {
+        return value == null ? "" : value.replaceAll("[\r\n]", "_");
     }
 }
