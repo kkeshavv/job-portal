@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserResponse registerUser(UserRegisterRequest request) {
 
-        log.info("Registering new user email={} role={}", sanitize(request.getEmail()), sanitize(request.getRole()));
+        log.info("Registering new user email={} role={}", sanitize(request.getEmail()), request.getRole());
 
         if (userRepository.existsByEmail(request.getEmail())) {
             log.warn("Registration failed - email already exists email={}", sanitize(request.getEmail()));
