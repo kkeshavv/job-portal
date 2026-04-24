@@ -35,38 +35,22 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ApplicationServiceImplTest {
 
-    @Mock
-    private ApplicationRepository repository;
-
-    @Mock
-    private JobClient jobClient;
-
-    @Mock
-    private RabbitTemplate rabbitTemplate;
-
-    @Mock
-    private ApplicationMapper applicationMapper;
+    @Mock private ApplicationRepository repository;
+    @Mock private JobClient jobClient;
+    @Mock private RabbitTemplate rabbitTemplate;
+    @Mock private ApplicationMapper applicationMapper;
 
     @InjectMocks
     private ApplicationServiceImpl applicationService;
-
-    // =============================================
-    // apply tests
-    // =============================================
 
     @Test
     void apply_success() {
         ApplicationRequest request = new ApplicationRequest(1L);
         UUID appId = UUID.randomUUID();
+        LocalDateTime now = LocalDateTime.now();
 
-        Application saved = new Application(
-                appId, 1L, "seeker@test.com",
-                ApplicationStatus.APPLIED, LocalDateTime.now()
-        );
-
-        ApplicationResponse expectedResponse = new ApplicationResponse(
-                appId, 1L, "seeker@test.com", ApplicationStatus.APPLIED, saved.getAppliedAt()
-        );
+        Application saved = new Application(appId, 1L, "seeker@test.com", ApplicationStatus.APPLIED, now);
+        ApplicationResponse expectedResponse = new ApplicationResponse(appId, 1L, "seeker@test.com", ApplicationStatus.APPLIED, now);
 
         when(jobClient.getJobById(1L)).thenReturn(new Object());
         when(repository.existsByJobIdAndUserEmail(1L, "seeker@test.com")).thenReturn(false);
@@ -79,9 +63,6 @@ class ApplicationServiceImplTest {
         assertEquals(appId, response.getApplicationId());
         assertEquals(1L, response.getJobId());
         assertEquals(ApplicationStatus.APPLIED, response.getStatus());
-
-        verify(jobClient).getJobById(1L);
-        verify(repository).existsByJobIdAndUserEmail(1L, "seeker@test.com");
         verify(repository).save(any(Application.class));
     }
 
@@ -89,10 +70,8 @@ class ApplicationServiceImplTest {
     void apply_notJobSeeker_throwsException() {
         ApplicationRequest request = new ApplicationRequest(1L);
 
-        UnauthorizedException ex = assertThrows(
-                UnauthorizedException.class,
-                () -> applicationService.apply(request, "recruiter@test.com", "RECRUITER")
-        );
+        UnauthorizedException ex = assertThrows(UnauthorizedException.class,
+                () -> applicationService.apply(request, "recruiter@test.com", "RECRUITER"));
 
         assertEquals("Only job seekers can apply", ex.getMessage());
         verify(repository, never()).save(any(Application.class));
@@ -105,29 +84,19 @@ class ApplicationServiceImplTest {
         when(jobClient.getJobById(1L)).thenReturn(new Object());
         when(repository.existsByJobIdAndUserEmail(1L, "seeker@test.com")).thenReturn(true);
 
-        AlreadyAppliedException ex = assertThrows(
-                AlreadyAppliedException.class,
-                () -> applicationService.apply(request, "seeker@test.com", "JOB_SEEKER")
-        );
+        AlreadyAppliedException ex = assertThrows(AlreadyAppliedException.class,
+                () -> applicationService.apply(request, "seeker@test.com", "JOB_SEEKER"));
 
         assertEquals("Already applied to this job", ex.getMessage());
         verify(repository, never()).save(any(Application.class));
     }
 
-    // =============================================
-    // getApplicants tests
-    // =============================================
-
     @Test
     void getApplicants_success() {
-        Application app = new Application(
-                UUID.randomUUID(), 1L, "seeker@test.com",
-                ApplicationStatus.APPLIED, LocalDateTime.now()
-        );
-
-        ApplicationResponse mappedResponse = new ApplicationResponse(
-                app.getApplicationId(), 1L, "seeker@test.com", ApplicationStatus.APPLIED, app.getAppliedAt()
-        );
+        LocalDateTime now = LocalDateTime.now();
+        UUID appId = UUID.randomUUID();
+        Application app = new Application(appId, 1L, "seeker@test.com", ApplicationStatus.APPLIED, now);
+        ApplicationResponse mappedResponse = new ApplicationResponse(appId, 1L, "seeker@test.com", ApplicationStatus.APPLIED, now);
 
         Page<Application> page = new PageImpl<>(List.of(app), PageRequest.of(0, 10), 1);
         when(repository.findByJobId(1L, PageRequest.of(0, 10))).thenReturn(page);
@@ -137,40 +106,24 @@ class ApplicationServiceImplTest {
 
         assertNotNull(result);
         assertEquals(1, result.getTotalElements());
-        verify(repository).findByJobId(1L, PageRequest.of(0, 10));
     }
 
     @Test
     void getApplicants_notRecruiter_throwsException() {
-        UnauthorizedException ex = assertThrows(
-                UnauthorizedException.class,
-                () -> applicationService.getApplicants(1L, "JOB_SEEKER", 0, 10)
-        );
+        UnauthorizedException ex = assertThrows(UnauthorizedException.class,
+                () -> applicationService.getApplicants(1L, "JOB_SEEKER", 0, 10));
 
         assertEquals("Only recruiters can view applicants", ex.getMessage());
         verify(repository, never()).findByJobId(any(), any());
     }
 
-    // =============================================
-    // updateStatus tests
-    // =============================================
-
     @Test
     void updateStatus_success() {
         UUID appId = UUID.randomUUID();
-        Application app = new Application(
-                appId, 1L, "seeker@test.com",
-                ApplicationStatus.APPLIED, LocalDateTime.now()
-        );
-
-        Application updated = new Application(
-                appId, 1L, "seeker@test.com",
-                ApplicationStatus.SHORTLISTED, LocalDateTime.now()
-        );
-
-        ApplicationResponse mappedResponse = new ApplicationResponse(
-                appId, 1L, "seeker@test.com", ApplicationStatus.SHORTLISTED, updated.getAppliedAt()
-        );
+        LocalDateTime now = LocalDateTime.now();
+        Application app = new Application(appId, 1L, "seeker@test.com", ApplicationStatus.APPLIED, now);
+        Application updated = new Application(appId, 1L, "seeker@test.com", ApplicationStatus.SHORTLISTED, now);
+        ApplicationResponse mappedResponse = new ApplicationResponse(appId, 1L, "seeker@test.com", ApplicationStatus.SHORTLISTED, now);
 
         when(repository.findById(appId)).thenReturn(Optional.of(app));
         when(repository.save(any(Application.class))).thenReturn(updated);
@@ -180,7 +133,6 @@ class ApplicationServiceImplTest {
 
         assertNotNull(response);
         assertEquals(ApplicationStatus.SHORTLISTED, response.getStatus());
-        verify(repository).findById(appId);
         verify(repository).save(any(Application.class));
     }
 
@@ -188,10 +140,8 @@ class ApplicationServiceImplTest {
     void updateStatus_notRecruiter_throwsException() {
         UUID appId = UUID.randomUUID();
 
-        UnauthorizedException ex = assertThrows(
-                UnauthorizedException.class,
-                () -> applicationService.updateStatus(appId, "SHORTLISTED", "JOB_SEEKER")
-        );
+        UnauthorizedException ex = assertThrows(UnauthorizedException.class,
+                () -> applicationService.updateStatus(appId, "SHORTLISTED", "JOB_SEEKER"));
 
         assertEquals("Only recruiters can update application status", ex.getMessage());
         verify(repository, never()).save(any(Application.class));
@@ -202,10 +152,8 @@ class ApplicationServiceImplTest {
         UUID appId = UUID.randomUUID();
         when(repository.findById(appId)).thenReturn(Optional.empty());
 
-        ResourceNotFoundException ex = assertThrows(
-                ResourceNotFoundException.class,
-                () -> applicationService.updateStatus(appId, "SHORTLISTED", "RECRUITER")
-        );
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
+                () -> applicationService.updateStatus(appId, "SHORTLISTED", "RECRUITER"));
 
         assertEquals("Application not found", ex.getMessage());
         verify(repository, never()).save(any(Application.class));
@@ -214,204 +162,12 @@ class ApplicationServiceImplTest {
     @Test
     void updateStatus_rejectedApplication_throwsException() {
         UUID appId = UUID.randomUUID();
-        Application app = new Application(
-                appId, 1L, "seeker@test.com",
-                ApplicationStatus.REJECTED, LocalDateTime.now()
-        );
+        Application app = new Application(appId, 1L, "seeker@test.com", ApplicationStatus.REJECTED, LocalDateTime.now());
 
         when(repository.findById(appId)).thenReturn(Optional.of(app));
 
-        AlreadyRejectedException ex = assertThrows(
-                AlreadyRejectedException.class,
-                () -> applicationService.updateStatus(appId, "SHORTLISTED", "RECRUITER")
-        );
-
-        assertEquals("Cannot update a rejected application", ex.getMessage());
-        verify(repository, never()).save(any(Application.class));
-    }
-}
-
-    // =============================================
-    // apply tests
-    // =============================================
-
-    @Test
-    void apply_success() {
-        // Arrange
-        ApplicationRequest request = new ApplicationRequest(1L);
-        UUID appId = UUID.randomUUID();
-
-        Application saved = new Application(
-                appId, 1L, "seeker@test.com",
-                ApplicationStatus.APPLIED, LocalDateTime.now()
-        );
-
-        when(jobClient.getJobById(1L)).thenReturn(new Object());
-        when(repository.existsByJobIdAndUserEmail(1L, "seeker@test.com")).thenReturn(false);
-        when(repository.save(any(Application.class))).thenReturn(saved);
-
-        // Act
-        ApplicationResponse response = applicationService.apply(request, "seeker@test.com", "JOB_SEEKER");
-
-        // Assert
-        assertNotNull(response);
-        assertEquals(appId, response.getApplicationId());
-        assertEquals(1L, response.getJobId());
-        assertEquals(ApplicationStatus.APPLIED, response.getStatus());
-
-        verify(jobClient).getJobById(1L);
-        verify(repository).existsByJobIdAndUserEmail(1L, "seeker@test.com");
-        verify(repository).save(any(Application.class));
-    }
-
-    @Test
-    void apply_notJobSeeker_throwsException() {
-        // Arrange
-        ApplicationRequest request = new ApplicationRequest(1L);
-
-        // Act & Assert
-        UnauthorizedException ex = assertThrows(
-                UnauthorizedException.class,
-                () -> applicationService.apply(request, "recruiter@test.com", "RECRUITER")
-        );
-
-        assertEquals("Only job seekers can apply", ex.getMessage());
-        verify(repository, never()).save(any(Application.class));
-    }
-
-    @Test
-    void apply_duplicateApplication_throwsException() {
-        // Arrange
-        ApplicationRequest request = new ApplicationRequest(1L);
-
-        when(jobClient.getJobById(1L)).thenReturn(new Object());
-        when(repository.existsByJobIdAndUserEmail(1L, "seeker@test.com")).thenReturn(true);
-
-        // Act & Assert
-        AlreadyAppliedException ex = assertThrows(
-                AlreadyAppliedException.class,
-                () -> applicationService.apply(request, "seeker@test.com", "JOB_SEEKER")
-        );
-
-        assertEquals("Already applied to this job", ex.getMessage());
-        verify(repository, never()).save(any(Application.class));
-    }
-
-    // =============================================
-    // getApplicants tests
-    // =============================================
-
-    @Test
-    void getApplicants_success() {
-        // Arrange
-        Application app = new Application(
-                UUID.randomUUID(), 1L, "seeker@test.com",
-                ApplicationStatus.APPLIED, LocalDateTime.now()
-        );
-
-        Page<Application> page = new PageImpl<>(List.of(app), PageRequest.of(0, 10), 1);
-        when(repository.findByJobId(1L, PageRequest.of(0, 10))).thenReturn(page);
-
-        // Act
-        Page<ApplicationResponse> result = applicationService.getApplicants(1L, "RECRUITER", 0, 10);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(1, result.getTotalElements());
-        verify(repository).findByJobId(1L, PageRequest.of(0, 10));
-    }
-
-    @Test
-    void getApplicants_notRecruiter_throwsException() {
-        // Act & Assert
-        UnauthorizedException ex = assertThrows(
-                UnauthorizedException.class,
-                () -> applicationService.getApplicants(1L, "JOB_SEEKER", 0, 10)
-        );
-
-        assertEquals("Only recruiters can view applicants", ex.getMessage());
-        verify(repository, never()).findByJobId(any(), any());
-    }
-
-    // =============================================
-    // updateStatus tests
-    // =============================================
-
-    @Test
-    void updateStatus_success() {
-        // Arrange
-        UUID appId = UUID.randomUUID();
-        Application app = new Application(
-                appId, 1L, "seeker@test.com",
-                ApplicationStatus.APPLIED, LocalDateTime.now()
-        );
-
-        Application updated = new Application(
-                appId, 1L, "seeker@test.com",
-                ApplicationStatus.SHORTLISTED, LocalDateTime.now()
-        );
-
-        when(repository.findById(appId)).thenReturn(Optional.of(app));
-        when(repository.save(any(Application.class))).thenReturn(updated);
-
-        // Act
-        ApplicationResponse response = applicationService.updateStatus(appId, "SHORTLISTED", "RECRUITER");
-
-        // Assert
-        assertNotNull(response);
-        assertEquals(ApplicationStatus.SHORTLISTED, response.getStatus());
-
-        verify(repository).findById(appId);
-        verify(repository).save(any(Application.class));
-    }
-
-    @Test
-    void updateStatus_notRecruiter_throwsException() {
-        // Arrange
-        UUID appId = UUID.randomUUID();
-
-        // Act & Assert
-        UnauthorizedException ex = assertThrows(
-                UnauthorizedException.class,
-                () -> applicationService.updateStatus(appId, "SHORTLISTED", "JOB_SEEKER")
-        );
-
-        assertEquals("Only recruiters can update application status", ex.getMessage());
-        verify(repository, never()).save(any(Application.class));
-    }
-
-    @Test
-    void updateStatus_applicationNotFound_throwsException() {
-        // Arrange
-        UUID appId = UUID.randomUUID();
-        when(repository.findById(appId)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        ResourceNotFoundException ex = assertThrows(
-                ResourceNotFoundException.class,
-                () -> applicationService.updateStatus(appId, "SHORTLISTED", "RECRUITER")
-        );
-
-        assertEquals("Application not found", ex.getMessage());
-        verify(repository, never()).save(any(Application.class));
-    }
-
-    @Test
-    void updateStatus_rejectedApplication_throwsException() {
-        // Arrange
-        UUID appId = UUID.randomUUID();
-        Application app = new Application(
-                appId, 1L, "seeker@test.com",
-                ApplicationStatus.REJECTED, LocalDateTime.now()
-        );
-
-        when(repository.findById(appId)).thenReturn(Optional.of(app));
-
-        // Act & Assert
-        AlreadyRejectedException ex = assertThrows(
-                AlreadyRejectedException.class,
-                () -> applicationService.updateStatus(appId, "SHORTLISTED", "RECRUITER")
-        );
+        AlreadyRejectedException ex = assertThrows(AlreadyRejectedException.class,
+                () -> applicationService.updateStatus(appId, "SHORTLISTED", "RECRUITER"));
 
         assertEquals("Cannot update a rejected application", ex.getMessage());
         verify(repository, never()).save(any(Application.class));
