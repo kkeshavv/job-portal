@@ -45,4 +45,13 @@ class EmailServiceTest {
 
         verify(mailSender).send(any(SimpleMailMessage.class));
     }
+
+    @Test
+    void send_generalException_rethrows() {
+        doThrow(new RuntimeException("SMTP error"))
+                .when(mailSender).send(any(SimpleMailMessage.class));
+
+        assertThrows(RuntimeException.class,
+                () -> emailService.send("to@test.com", "Test Subject", "Test Body"));
+    }
 }
