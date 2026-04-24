@@ -16,12 +16,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -38,11 +38,12 @@ class UserControllerTest {
     }
 
     @Test
+    @WithMockUser
     void registerUser_returns200() throws Exception {
         UserRegisterRequest request = new UserRegisterRequest("John", "john@test.com", "pass123", Role.JOB_SEEKER);
         when(userService.registerUser(any())).thenReturn(buildResponse());
 
-        mockMvc.perform(post("/api/users/register")
+        mockMvc.perform(post("/api/users/register").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -50,11 +51,12 @@ class UserControllerTest {
     }
 
     @Test
+    @WithMockUser
     void loginUser_returns200() throws Exception {
         UserLoginRequest request = new UserLoginRequest("john@test.com", "pass123");
         when(userService.loginUser(any())).thenReturn("mocked.jwt.token");
 
-        mockMvc.perform(post("/api/users/login")
+        mockMvc.perform(post("/api/users/login").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -62,6 +64,7 @@ class UserControllerTest {
     }
 
     @Test
+    @WithMockUser
     void getUser_returns200() throws Exception {
         when(userService.getUserById(anyLong(), anyString(), anyString())).thenReturn(buildResponse());
 
@@ -72,12 +75,13 @@ class UserControllerTest {
     }
 
     @Test
+    @WithMockUser
     void updateUser_returns200() throws Exception {
         UpdateUserRequest request = new UpdateUserRequest();
         request.setName("Updated");
         when(userService.updateUser(anyLong(), any(), anyString(), anyString())).thenReturn(buildResponse());
 
-        mockMvc.perform(put("/api/users/1")
+        mockMvc.perform(put("/api/users/1").with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
                 .header("X-User-Email", "john@test.com")
@@ -86,6 +90,7 @@ class UserControllerTest {
     }
 
     @Test
+    @WithMockUser
     void getMe_returns200() throws Exception {
         when(userService.getUserByEmail(anyString())).thenReturn(buildResponse());
 
