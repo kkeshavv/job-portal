@@ -191,4 +191,35 @@ class ResumeServiceImplTest {
 
         verify(resumeRepository, never()).delete(any());
     }
+
+    // uploadResumeFile tests
+
+    @Test
+    void uploadResumeFile_notJobSeeker_throwsException() {
+        org.springframework.mock.web.MockMultipartFile file =
+                new org.springframework.mock.web.MockMultipartFile("file", "test.pdf", "application/pdf", "content".getBytes());
+
+        assertThrows(UnauthorizedException.class,
+                () -> resumeService.uploadResumeFile(file, "recruiter@test.com", "RECRUITER"));
+
+        verify(resumeRepository, never()).save(any());
+    }
+
+    @Test
+    void uploadResumeFile_emptyFile_throwsException() {
+        org.springframework.mock.web.MockMultipartFile file =
+                new org.springframework.mock.web.MockMultipartFile("file", "test.pdf", "application/pdf", new byte[0]);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> resumeService.uploadResumeFile(file, "seeker@test.com", "JOB_SEEKER"));
+    }
+
+    @Test
+    void uploadResumeFile_invalidExtension_throwsException() {
+        org.springframework.mock.web.MockMultipartFile file =
+                new org.springframework.mock.web.MockMultipartFile("file", "test.txt", "text/plain", "content".getBytes());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> resumeService.uploadResumeFile(file, "seeker@test.com", "JOB_SEEKER"));
+    }
 }
