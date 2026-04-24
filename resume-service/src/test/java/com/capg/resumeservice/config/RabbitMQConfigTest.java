@@ -10,8 +10,8 @@ class RabbitMQConfigTest {
 
     @Test
     void exchange_isNotNull() {
-        assertNotNull(config.exchange());
-        assertEquals(RabbitMQConfig.EXCHANGE, config.exchange().getName());
+        assertNotNull(config.jobportalExchange());
+        assertEquals(RabbitMQConfig.EXCHANGE, config.jobportalExchange().getName());
     }
 
     @Test
