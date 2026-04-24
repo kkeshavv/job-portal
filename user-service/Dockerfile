@@ -1,4 +1,4 @@
-FROM amazoncorretto:17-alpine AS build
+FROM public.ecr.aws/amazoncorretto/amazoncorretto:17-alpine AS build
 WORKDIR /app
 COPY .mvn/ .mvn/
 COPY mvnw pom.xml ./
@@ -6,7 +6,7 @@ RUN ./mvnw dependency:go-offline -q
 COPY src/ src/
 RUN ./mvnw package -DskipTests -q
 
-FROM amazoncorretto:17-alpine
+FROM public.ecr.aws/amazoncorretto/amazoncorretto:17-alpine
 WORKDIR /app
 COPY --from=build /app/target/user-service-0.0.1-SNAPSHOT.jar app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]
