@@ -60,4 +60,11 @@ class JwtUtilTest {
         String token = jwtUtil.generateToken("admin@example.com", "ADMIN");
         assertEquals("ADMIN", jwtUtil.extractRole(token));
     }
+
+    @Test
+    void validateToken_emailMismatch_returnsFalseWithoutCheckingExpiry() {
+        String token = jwtUtil.generateToken("test@example.com", "JOB_SEEKER");
+        // email doesn't match — short-circuit, isTokenExpired never evaluated
+        assertFalse(jwtUtil.validateToken(token, "different@example.com"));
+    }
 }

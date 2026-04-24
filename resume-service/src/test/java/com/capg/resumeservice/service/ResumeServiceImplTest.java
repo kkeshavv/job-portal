@@ -310,4 +310,24 @@ class ResumeServiceImplTest {
         assertNotNull(response);
         assertEquals(1L, response.getResumeId());
     }
+
+    @Test
+    void uploadResumeFile_rabbitMqFailure_stillReturnsResponse(@TempDir Path tempDir) {
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "test.pdf", "application/pdf", "pdf content".getBytes());
+
+        Resume saved = buildResume(1L, "seeker@test.com");
+        ResumeResponse expected = buildResponse(1L, "seeker@test.com");
+
+        ReflectionTestUtils.setField(resumeService, "uploadDir", tempDir.toString());
+        when(resumeRepository.save(any(Resume.class))).thenReturn(saved);
+        when(resumeMapper.toResponse(saved)).thenReturn(expected);
+        doThrow(new RuntimeException("RabbitMQ down"))
+                .when(rabbitTemplate).convertAndSend(anyString(), anyString(), any(Object.class));
+
+        ResumeResponse response = resumeService.uploadResumeFile(file, "seeker@test.com", "JOB_SEEKER");
+
+        assertNotNull(response);
+        assertEquals(1L, response.getResumeId());
+    }
 }
