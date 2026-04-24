@@ -183,8 +183,4 @@ public class ResumeServiceImpl implements ResumeService {
         resumeRepository.delete(resume);
         log.info("Resume deleted resumeId={}", resumeId);
     }
-
-    private static String sanitize(String value) {
-        return value == null ? "" : value.replaceAll("[\r\n]", "_");
-    }
 }

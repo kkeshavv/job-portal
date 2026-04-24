@@ -68,8 +68,4 @@ public class UserController {
         log.info("GET /api/users/me");
         return ResponseEntity.ok(userService.getUserByEmail(email));
     }
-
-    private static String sanitize(String value) {
-        return value == null ? "" : value.replaceAll("[\r\n]", "_");
-    }
 }

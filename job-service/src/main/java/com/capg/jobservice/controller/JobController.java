@@ -52,11 +52,7 @@ public class JobController {
     public ResponseEntity<JobResponse> closeJob(
             @PathVariable Long id,
             @Parameter(hidden = true) @RequestHeader("X-User-Role") String role) {
-        log.info("PUT /api/jobs/{}/close", id); // id is Long, safe
+        log.info("PUT /api/jobs/{}/close", id);
         return ResponseEntity.ok(jobService.closeJob(id, role));
-    }
-
-    private static String sanitize(String value) {
-        return value == null ? "" : value.replaceAll("[\r\n]", "_");
     }
 }

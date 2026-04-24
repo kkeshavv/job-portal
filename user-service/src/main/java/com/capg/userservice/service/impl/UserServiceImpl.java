@@ -60,7 +60,7 @@ public class UserServiceImpl implements UserService {
         user.setUpdatedAt(LocalDateTime.now());
 
         User savedUser = userRepository.save(user);
-        log.info("User registered successfully userId={} email={}", savedUser.getId(), savedUser.getEmail());
+        log.info("User registered successfully userId={}", savedUser.getId());
 
         return userMapper.toResponse(savedUser);
     }
