@@ -131,7 +131,7 @@ jobs:
       - name: Analyze notification-service
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: cd notification-service && chmod +x mvnw && ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kkeshavv_job-portal -Dsonar.projectName=notification-service -DskipTests
+        run: cd notification-service && chmod +x mvnw && ./mvnw -B package org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kkeshavv_job-portal -Dsonar.projectName=notification-service -DskipTests -Dspring.cloud.config.enabled=false
 
   sonar-search-service:
     runs-on: ubuntu-latest
