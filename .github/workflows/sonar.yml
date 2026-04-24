@@ -7,178 +7,46 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-
-  sonar-user-service:
+  sonar-analysis:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'zulu'
-      - uses: actions/cache@v4
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-      - uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-      - name: Analyze user-service
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: cd user-service && chmod +x mvnw && ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kkeshavv_job-portal-user-service -Dsonar.projectName=user-service -Dsonar.organization=kkeshavv -DskipTests
 
-  sonar-job-service:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'zulu'
-      - uses: actions/cache@v4
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-      - uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-      - name: Analyze job-service
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: cd job-service && chmod +x mvnw && ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kkeshavv_job-portal-job-service -Dsonar.projectName=job-service -Dsonar.organization=kkeshavv -DskipTests
-
-  sonar-application-service:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'zulu'
-      - uses: actions/cache@v4
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-      - uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-      - name: Analyze application-service
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: cd application-service && chmod +x mvnw && ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kkeshavv_job-portal-application-service -Dsonar.projectName=application-service -Dsonar.organization=kkeshavv -DskipTests
 
-  sonar-resume-service:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'zulu'
       - uses: actions/cache@v4
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
-      - uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-      - name: Analyze resume-service
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: cd resume-service && chmod +x mvnw && ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kkeshavv_job-portal-resume-service -Dsonar.projectName=resume-service -Dsonar.organization=kkeshavv -DskipTests
 
-  sonar-notification-service:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'zulu'
-      - uses: actions/cache@v4
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
       - uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
-      - name: Analyze notification-service
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: cd notification-service && chmod +x mvnw && ./mvnw -B package org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kkeshavv_job-portal-notification-service -Dsonar.projectName=notification-service -Dsonar.organization=kkeshavv -DskipTests -Dspring.cloud.config.enabled=false
 
-  sonar-search-service:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'zulu'
-      - uses: actions/cache@v4
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-      - uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-      - name: Analyze search-service
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: cd search-service && chmod +x mvnw && ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kkeshavv_job-portal-search-service -Dsonar.projectName=search-service -Dsonar.organization=kkeshavv -DskipTests
+      - name: Compile all services
+        run: |
+          for service in user-service job-service application-service resume-service notification-service search-service analytics-service; do
+            echo "Compiling $service..."
+            cd $service && chmod +x mvnw && ./mvnw -B compile -DskipTests -Dspring.cloud.config.enabled=false -q && cd ..
+          done
 
-  sonar-analytics-service:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'zulu'
-      - uses: actions/cache@v4
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-      - uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-      - name: Analyze analytics-service
+      - name: Run SonarCloud Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: cd analytics-service && chmod +x mvnw && ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=kkeshavv_job-portal-analytics-service -Dsonar.projectName=analytics-service -Dsonar.organization=kkeshavv -DskipTests
+        run: |
+          ./user-service/mvnw -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=kkeshavv_job-portal \
+            -Dsonar.projectName=job-portal \
+            -Dsonar.organization=kkeshavv \
+            -Dsonar.sources=user-service/src/main/java,job-service/src/main/java,application-service/src/main/java,resume-service/src/main/java,notification-service/src/main/java,search-service/src/main/java,analytics-service/src/main/java \
+            -Dsonar.java.binaries=user-service/target/classes,job-service/target/classes,application-service/target/classes,resume-service/target/classes,notification-service/target/classes,search-service/target/classes,analytics-service/target/classes \
+            -Dsonar.spring.cloud.config.enabled=false \
+            -f user-service/pom.xml
