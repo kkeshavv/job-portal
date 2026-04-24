@@ -32,5 +32,8 @@ Thumbs.db
 jobportal-config/
 user-service/.git/
 
+# Uploaded files
+resume-service/uploads/
+
 # Chat logs
 q-dev-chat-*.md
