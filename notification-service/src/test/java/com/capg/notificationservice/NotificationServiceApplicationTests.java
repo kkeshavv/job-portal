@@ -1,15 +1,19 @@
 package com.capg.notificationservice;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.SpringApplication;
+import org.mockito.MockedStatic;
+import static org.mockito.Mockito.*;
 
-@SpringBootTest
-@Disabled("Requires full Spring context with DB and config server")
 class NotificationServiceApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
-
+    @Test
+    void main_doesNotThrow() {
+        try (MockedStatic<SpringApplication> mocked = mockStatic(SpringApplication.class)) {
+            mocked.when(() -> SpringApplication.run(NotificationServiceApplication.class, new String[]{}))
+                  .thenReturn(null);
+            NotificationServiceApplication.main(new String[]{});
+            mocked.verify(() -> SpringApplication.run(NotificationServiceApplication.class, new String[]{}));
+        }
+    }
 }
