@@ -330,4 +330,30 @@ class ResumeServiceImplTest {
         assertNotNull(response);
         assertEquals(1L, response.getResumeId());
     }
+
+    @Test
+    void uploadResumeFile_nullFilename_throwsException() {
+        // originalFilename is null -> extension = "" -> invalid
+        MockMultipartFile file = new MockMultipartFile(
+                "file", null, "application/pdf", "pdf content".getBytes());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> resumeService.uploadResumeFile(file, "seeker@test.com", "JOB_SEEKER"));
+    }
+
+    @Test
+    void uploadResumeFile_ioException_throwsRuntimeException() throws Exception {
+        // Use a read-only path to force IOException
+        org.springframework.web.multipart.MultipartFile badFile =
+                mock(org.springframework.web.multipart.MultipartFile.class);
+        when(badFile.isEmpty()).thenReturn(false);
+        when(badFile.getOriginalFilename()).thenReturn("test.pdf");
+        when(badFile.getInputStream()).thenThrow(new java.io.IOException("disk error"));
+
+        ReflectionTestUtils.setField(resumeService, "uploadDir",
+                System.getProperty("java.io.tmpdir"));
+
+        assertThrows(RuntimeException.class,
+                () -> resumeService.uploadResumeFile(badFile, "seeker@test.com", "JOB_SEEKER"));
+    }
 }

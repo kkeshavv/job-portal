@@ -67,4 +67,11 @@ class JwtUtilTest {
         // email doesn't match — short-circuit, isTokenExpired never evaluated
         assertFalse(jwtUtil.validateToken(token, "different@example.com"));
     }
+
+    @Test
+    void validateToken_recruiterRole_validToken_returnsTrue() {
+        String token = jwtUtil.generateToken("recruiter@example.com", "RECRUITER");
+        assertTrue(jwtUtil.validateToken(token, "recruiter@example.com"));
+        assertEquals("RECRUITER", jwtUtil.extractRole(token));
+    }
 }

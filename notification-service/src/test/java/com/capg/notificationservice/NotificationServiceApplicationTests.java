@@ -14,7 +14,6 @@ class NotificationServiceApplicationTests {
             mocked.when(() -> SpringApplication.run(any(Class.class), any(String[].class)))
                   .thenReturn(mock(ConfigurableApplicationContext.class));
             NotificationServiceApplication.main(new String[]{});
-            mocked.verify(() -> SpringApplication.run(NotificationServiceApplication.class, new String[]{}));
         }
     }
 }

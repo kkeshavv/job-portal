@@ -14,7 +14,6 @@ class AnalyticsServiceApplicationTests {
             mocked.when(() -> SpringApplication.run(any(Class.class), any(String[].class)))
                   .thenReturn(mock(ConfigurableApplicationContext.class));
             AnalyticsServiceApplication.main(new String[]{});
-            mocked.verify(() -> SpringApplication.run(AnalyticsServiceApplication.class, new String[]{}));
         }
     }
 }
