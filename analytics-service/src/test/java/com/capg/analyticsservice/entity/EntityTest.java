@@ -36,8 +36,10 @@ class EntityTest {
         assertEquals("JOB_CREATED", summary.getMetricName());
         assertEquals(10L, summary.getCount());
 
+        summary.setId(2L);
         summary.setMetricName("JOB_APPLIED");
         summary.setCount(20L);
+        assertEquals(2L, summary.getId());
         assertEquals("JOB_APPLIED", summary.getMetricName());
         assertEquals(20L, summary.getCount());
     }

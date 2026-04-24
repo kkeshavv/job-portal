@@ -172,4 +172,31 @@ class ApplicationServiceImplTest {
         assertEquals("Cannot update a rejected application", ex.getMessage());
         verify(repository, never()).save(any(Application.class));
     }
+
+    @Test
+    void getMyApplications_returnsPage() {
+        LocalDateTime now = LocalDateTime.now();
+        UUID appId = UUID.randomUUID();
+        Application app = new Application(appId, 1L, "seeker@test.com", ApplicationStatus.APPLIED, now);
+        ApplicationResponse mappedResponse = new ApplicationResponse(appId, 1L, "seeker@test.com", ApplicationStatus.APPLIED, now);
+
+        Page<Application> page = new PageImpl<>(List.of(app), PageRequest.of(0, 10), 1);
+        when(repository.findByUserEmail("seeker@test.com", PageRequest.of(0, 10))).thenReturn(page);
+        when(applicationMapper.toResponse(app)).thenReturn(mappedResponse);
+
+        Page<ApplicationResponse> result = applicationService.getMyApplications("seeker@test.com", 0, 10);
+
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
+    }
+
+    @Test
+    void updateStatus_invalidStatus_throwsException() {
+        UUID appId = UUID.randomUUID();
+        Application app = new Application(appId, 1L, "seeker@test.com", ApplicationStatus.APPLIED, LocalDateTime.now());
+        when(repository.findById(appId)).thenReturn(Optional.of(app));
+
+        assertThrows(com.capg.applicationservice.exception.InvalidStatusException.class,
+                () -> applicationService.updateStatus(appId, "INVALID_STATUS", "RECRUITER"));
+    }
 }
