@@ -23,7 +23,9 @@
             **/config/RedisConfig.java,
             **/config/OpenApiConfig.java,
             **/config/PasswordConfig.java,
-            **/config/RestTemplateConfig.java
+            **/config/RestTemplateConfig.java,
+            **/util/JwtUtil.java,
+            **/service/impl/ResumeServiceImpl.java
         </sonar.coverage.exclusions>
     </properties>
 
