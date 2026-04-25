@@ -35,8 +35,8 @@ public class EmailService {
             log.error("Email authentication failed - check mail credentials. to={} subject={} error={}", to, subject, e.getMessage());
             // Do not rethrow: retrying will not fix invalid credentials, avoids infinite requeue loop
         } catch (Exception e) {
-            log.error("Failed to send email to={} subject={} error={}", to, subject, e.getMessage());
-            throw e;
+            log.error("Failed to send email subject={} error={}", subject, e.getMessage());
+            throw new IllegalStateException("Email sending failed: " + subject, e);
         }
     }
 }

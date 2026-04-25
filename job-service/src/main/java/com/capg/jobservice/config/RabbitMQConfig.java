@@ -18,6 +18,8 @@ public class RabbitMQConfig {
     private static final String DLQ_CREATED_SEARCH    = "job.created.search.queue.dlq";
     private static final String DLQ_CLOSED_ANALYTICS  = "job.closed.analytics.queue.dlq";
     private static final String DLQ_CLOSED_NOTIFY     = "job.closed.notify.queue.dlq";
+    private static final String X_DLX                 = "x-dead-letter-exchange";
+    private static final String X_DLX_RK              = "x-dead-letter-routing-key";
 
     @Bean public TopicExchange jobportalExchange() { return new TopicExchange(EXCHANGE); }
     @Bean public DirectExchange deadLetterExchange() { return new DirectExchange(DLX); }
@@ -26,32 +28,32 @@ public class RabbitMQConfig {
 
     @Bean public Queue jobCreatedAnalyticsQueue() {
         return QueueBuilder.durable("job.created.analytics.queue")
-                .withArgument("x-dead-letter-exchange", DLX)
-                .withArgument("x-dead-letter-routing-key", DLQ_CREATED_ANALYTICS)
+                .withArgument(X_DLX, DLX)
+                .withArgument(X_DLX_RK, DLQ_CREATED_ANALYTICS)
                 .build();
     }
     @Bean public Queue jobCreatedNotifyQueue() {
         return QueueBuilder.durable("job.created.notify.queue")
-                .withArgument("x-dead-letter-exchange", DLX)
-                .withArgument("x-dead-letter-routing-key", DLQ_CREATED_NOTIFY)
+                .withArgument(X_DLX, DLX)
+                .withArgument(X_DLX_RK, DLQ_CREATED_NOTIFY)
                 .build();
     }
     @Bean public Queue jobCreatedSearchQueue() {
         return QueueBuilder.durable("job.created.search.queue")
-                .withArgument("x-dead-letter-exchange", DLX)
-                .withArgument("x-dead-letter-routing-key", DLQ_CREATED_SEARCH)
+                .withArgument(X_DLX, DLX)
+                .withArgument(X_DLX_RK, DLQ_CREATED_SEARCH)
                 .build();
     }
     @Bean public Queue jobClosedAnalyticsQueue() {
         return QueueBuilder.durable("job.closed.analytics.queue")
-                .withArgument("x-dead-letter-exchange", DLX)
-                .withArgument("x-dead-letter-routing-key", DLQ_CLOSED_ANALYTICS)
+                .withArgument(X_DLX, DLX)
+                .withArgument(X_DLX_RK, DLQ_CLOSED_ANALYTICS)
                 .build();
     }
     @Bean public Queue jobClosedNotifyQueue() {
         return QueueBuilder.durable("job.closed.notify.queue")
-                .withArgument("x-dead-letter-exchange", DLX)
-                .withArgument("x-dead-letter-routing-key", DLQ_CLOSED_NOTIFY)
+                .withArgument(X_DLX, DLX)
+                .withArgument(X_DLX_RK, DLQ_CLOSED_NOTIFY)
                 .build();
     }
 

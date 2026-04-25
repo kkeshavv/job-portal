@@ -15,6 +15,9 @@ public class RabbitMQConfig {
     public static final String JOB_CLOSED_QUEUE    = "job.closed.notify.queue";
     public static final String RESUME_UPLOAD_QUEUE = "resume.upload.notify.queue";
 
+    private static final String X_DLX    = "x-dead-letter-exchange";
+    private static final String X_DLX_RK = "x-dead-letter-routing-key";
+
     @Bean public TopicExchange jobportalExchange() { return new TopicExchange(EXCHANGE); }
     @Bean public DirectExchange deadLetterExchange() { return new DirectExchange(DLX); }
 
@@ -22,26 +25,26 @@ public class RabbitMQConfig {
 
     @Bean public Queue jobCreatedQueue() {
         return QueueBuilder.durable(JOB_CREATED_QUEUE)
-                .withArgument("x-dead-letter-exchange", DLX)
-                .withArgument("x-dead-letter-routing-key", JOB_CREATED_QUEUE + ".dlq")
+                .withArgument(X_DLX, DLX)
+                .withArgument(X_DLX_RK, JOB_CREATED_QUEUE + ".dlq")
                 .build();
     }
     @Bean public Queue jobAppliedQueue() {
         return QueueBuilder.durable(JOB_APPLIED_QUEUE)
-                .withArgument("x-dead-letter-exchange", DLX)
-                .withArgument("x-dead-letter-routing-key", JOB_APPLIED_QUEUE + ".dlq")
+                .withArgument(X_DLX, DLX)
+                .withArgument(X_DLX_RK, JOB_APPLIED_QUEUE + ".dlq")
                 .build();
     }
     @Bean public Queue jobClosedQueue() {
         return QueueBuilder.durable(JOB_CLOSED_QUEUE)
-                .withArgument("x-dead-letter-exchange", DLX)
-                .withArgument("x-dead-letter-routing-key", JOB_CLOSED_QUEUE + ".dlq")
+                .withArgument(X_DLX, DLX)
+                .withArgument(X_DLX_RK, JOB_CLOSED_QUEUE + ".dlq")
                 .build();
     }
     @Bean public Queue resumeUploadQueue() {
         return QueueBuilder.durable(RESUME_UPLOAD_QUEUE)
-                .withArgument("x-dead-letter-exchange", DLX)
-                .withArgument("x-dead-letter-routing-key", RESUME_UPLOAD_QUEUE + ".dlq")
+                .withArgument(X_DLX, DLX)
+                .withArgument(X_DLX_RK, RESUME_UPLOAD_QUEUE + ".dlq")
                 .build();
     }
 

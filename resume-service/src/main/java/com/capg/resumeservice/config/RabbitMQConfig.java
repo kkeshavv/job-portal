@@ -14,6 +14,8 @@ public class RabbitMQConfig {
 
     private static final String DLQ_ANALYTICS = "resume.upload.analytics.queue.dlq";
     private static final String DLQ_NOTIFY    = "resume.upload.notify.queue.dlq";
+    private static final String X_DLX         = "x-dead-letter-exchange";
+    private static final String X_DLX_RK      = "x-dead-letter-routing-key";
 
     @Bean public TopicExchange jobportalExchange() { return new TopicExchange(EXCHANGE); }
     @Bean public DirectExchange deadLetterExchange() { return new DirectExchange(DLX); }
@@ -22,14 +24,14 @@ public class RabbitMQConfig {
 
     @Bean public Queue resumeAnalyticsQueue() {
         return QueueBuilder.durable("resume.upload.analytics.queue")
-                .withArgument("x-dead-letter-exchange", DLX)
-                .withArgument("x-dead-letter-routing-key", DLQ_ANALYTICS)
+                .withArgument(X_DLX, DLX)
+                .withArgument(X_DLX_RK, DLQ_ANALYTICS)
                 .build();
     }
     @Bean public Queue resumeNotifyQueue() {
         return QueueBuilder.durable("resume.upload.notify.queue")
-                .withArgument("x-dead-letter-exchange", DLX)
-                .withArgument("x-dead-letter-routing-key", DLQ_NOTIFY)
+                .withArgument(X_DLX, DLX)
+                .withArgument(X_DLX_RK, DLQ_NOTIFY)
                 .build();
     }
 

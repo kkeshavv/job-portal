@@ -149,8 +149,4 @@ public class UserServiceImpl implements UserService {
 
         return userMapper.toResponse(updated);
     }
-
-    private static String sanitize(String value) {
-        return value == null ? "" : value.replaceAll("[\r\n]", "_");
-    }
 }
