@@ -36,7 +36,7 @@ public class JobController {
 
     @GetMapping("/{jobId}")
     public ResponseEntity<JobResponse> getJob(@PathVariable Long jobId) {
-        log.info("GET /api/jobs/{}", jobId); // jobId is Long, safe
+        log.info("GET /api/jobs by id");
         return ResponseEntity.ok(jobService.getJobById(jobId));
     }
 
@@ -44,7 +44,7 @@ public class JobController {
     public ResponseEntity<Page<JobResponse>> getAllJobs(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        log.info("GET /api/jobs page={} size={}", page, size);
+        log.info("GET /api/jobs list");
         return ResponseEntity.ok(jobService.getAllJobs(page, size));
     }
 
@@ -52,7 +52,7 @@ public class JobController {
     public ResponseEntity<JobResponse> closeJob(
             @PathVariable Long id,
             @Parameter(hidden = true) @RequestHeader("X-User-Role") String role) {
-        log.info("PUT /api/jobs/{}/close", id);
+        log.info("PUT /api/jobs/close");
         return ResponseEntity.ok(jobService.closeJob(id, role));
     }
 }
