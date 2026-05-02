@@ -222,4 +222,50 @@ class ApplicationServiceImplTest {
         assertNotNull(response);
         assertEquals(appId, response.getApplicationId());
     }
+
+    @Test
+    void withdrawApplication_success() {
+        UUID appId = UUID.randomUUID();
+        Application app = new Application(appId, 1L, "seeker@test.com", ApplicationStatus.APPLIED, LocalDateTime.now());
+        when(repository.findById(appId)).thenReturn(Optional.of(app));
+
+        applicationService.withdrawApplication(appId, "seeker@test.com");
+
+        verify(repository).delete(app);
+    }
+
+    @Test
+    void withdrawApplication_notFound_throwsException() {
+        UUID appId = UUID.randomUUID();
+        when(repository.findById(appId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> applicationService.withdrawApplication(appId, "seeker@test.com"));
+
+        verify(repository, never()).delete(any());
+    }
+
+    @Test
+    void withdrawApplication_notOwner_throwsException() {
+        UUID appId = UUID.randomUUID();
+        Application app = new Application(appId, 1L, "seeker@test.com", ApplicationStatus.APPLIED, LocalDateTime.now());
+        when(repository.findById(appId)).thenReturn(Optional.of(app));
+
+        assertThrows(UnauthorizedException.class,
+                () -> applicationService.withdrawApplication(appId, "other@test.com"));
+
+        verify(repository, never()).delete(any());
+    }
+
+    @Test
+    void withdrawApplication_notAppliedStatus_throwsException() {
+        UUID appId = UUID.randomUUID();
+        Application app = new Application(appId, 1L, "seeker@test.com", ApplicationStatus.SHORTLISTED, LocalDateTime.now());
+        when(repository.findById(appId)).thenReturn(Optional.of(app));
+
+        assertThrows(com.capg.applicationservice.exception.InvalidStatusException.class,
+                () -> applicationService.withdrawApplication(appId, "seeker@test.com"));
+
+        verify(repository, never()).delete(any());
+    }
 }

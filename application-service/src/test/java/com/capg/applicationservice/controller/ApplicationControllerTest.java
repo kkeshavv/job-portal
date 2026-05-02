@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -79,5 +80,15 @@ class ApplicationControllerTest {
                 .param("status", "SHORTLISTED")
                 .header("X-User-Role", "RECRUITER"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void withdraw_returns204() throws Exception {
+        UUID appId = UUID.randomUUID();
+        doNothing().when(service).withdrawApplication(any(), anyString());
+
+        mockMvc.perform(delete("/api/applications/" + appId)
+                .header("X-User-Email", "seeker@test.com"))
+                .andExpect(status().isNoContent());
     }
 }
