@@ -101,7 +101,7 @@ import { RecruiterJobService } from '../../services/recruiter-job.service';
               </span>
             </td>
             <td class="px-5 py-4">
-              <select (change)="updateStatus(app.applicationId, $event)"
+              <select (click)="$event.stopPropagation()" (change)="updateStatus(app.applicationId, $event)"
                 class="border border-gray-200 rounded-lg px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="APPLIED" [selected]="app.status === 'APPLIED'">Applied</option>
                 <option value="SHORTLISTED" [selected]="app.status === 'SHORTLISTED'">Shortlist</option>
