@@ -20,7 +20,7 @@ public class Job {
     private String experienceLevel;
     private String status;
 
-    public Job() {}
+    public Job() { /* default constructor for JPA */ }
 
     public Long getJobId() { return jobId; }
     public void setJobId(Long jobId) { this.jobId = jobId; }

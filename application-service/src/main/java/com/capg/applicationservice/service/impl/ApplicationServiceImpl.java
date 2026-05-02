@@ -1,6 +1,5 @@
 package com.capg.applicationservice.service.impl;
 
-import com.capg.applicationservice.client.JobClient;
 import com.capg.applicationservice.dto.ApplicationEvent;
 import com.capg.applicationservice.dto.request.ApplicationRequest;
 import com.capg.applicationservice.dto.response.ApplicationResponse;
@@ -32,16 +31,13 @@ public class ApplicationServiceImpl implements ApplicationService {
     private static final Logger log = LoggerFactory.getLogger(ApplicationServiceImpl.class);
 
     private final ApplicationRepository repository;
-    private final JobClient jobClient;
     private final RabbitTemplate rabbitTemplate;
     private final ApplicationMapper applicationMapper;
 
     public ApplicationServiceImpl(ApplicationRepository repository,
-                                  JobClient jobClient,
                                   RabbitTemplate rabbitTemplate,
                                   ApplicationMapper applicationMapper) {
         this.repository = repository;
-        this.jobClient = jobClient;
         this.rabbitTemplate = rabbitTemplate;
         this.applicationMapper = applicationMapper;
     }
@@ -50,15 +46,15 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Transactional
     public ApplicationResponse apply(ApplicationRequest request, String email, String role) {
 
-        log.info("Apply request jobId={} applicant={}", request.getJobId(), email);
+        log.info("Apply request");
 
         if (!role.equals("JOB_SEEKER")) {
-            log.warn("Apply rejected - not a job seeker email={} role={}", email, role);
+            log.warn("Apply rejected - not a job seeker");
             throw new UnauthorizedException("Only job seekers can apply");
         }
 
         if (repository.existsByJobIdAndUserEmail(request.getJobId(), email)) {
-            log.warn("Duplicate application jobId={} email={}", request.getJobId(), email);
+            log.warn("Duplicate application");
             throw new AlreadyAppliedException("Already applied to this job");
         }
 
@@ -70,7 +66,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         app.setAppliedAt(LocalDateTime.now());
 
         Application saved = repository.save(app);
-        log.info("Application saved applicationId={} jobId={} email={}", saved.getApplicationId(), saved.getJobId(), email);
+        log.info("Application saved");
 
         try {
             ApplicationEvent event = new ApplicationEvent(
@@ -80,10 +76,10 @@ public class ApplicationServiceImpl implements ApplicationService {
                     saved.getStatus().name()
             );
             rabbitTemplate.convertAndSend("jobportal.exchange", "job.applied", event);
-            log.info("RabbitMQ event published exchange=jobportal.exchange routingKey=job.applied jobId={}", saved.getJobId());
+            log.info("RabbitMQ event published");
 
         } catch (Exception e) {
-            log.error("RabbitMQ publish failed applicationId={}", saved.getApplicationId(), e);
+            log.error("RabbitMQ publish failed", e);
         }
 
         return map(saved);
@@ -99,11 +95,11 @@ public class ApplicationServiceImpl implements ApplicationService {
     public Page<ApplicationResponse> getApplicants(Long jobId, String role, int page, int size) {
 
         if (!role.equals("RECRUITER")) {
-            log.warn("Unauthorized applicants view role={}", role);
+            log.warn("Unauthorized applicants view");
             throw new UnauthorizedException("Only recruiters can view applicants");
         }
 
-        log.info("Fetching applicants jobId={}", jobId);
+        log.info("Fetching applicants");
 
         return repository.findByJobId(jobId, PageRequest.of(page, size))
                 .map(this::map);
@@ -114,13 +110,13 @@ public class ApplicationServiceImpl implements ApplicationService {
     public ApplicationResponse updateStatus(UUID applicationId, String status, String role) {
 
         if (!role.equals("RECRUITER")) {
-            log.warn("Unauthorized status update role={}", role);
+            log.warn("Unauthorized status update");
             throw new UnauthorizedException("Only recruiters can update application status");
         }
 
         Application app = repository.findById(applicationId)
                 .orElseThrow(() -> {
-                    log.warn("Application not found applicationId={}", applicationId);
+                    log.warn("Application not found");
                     return new ResourceNotFoundException("Application not found");
                 });
 
@@ -128,18 +124,18 @@ public class ApplicationServiceImpl implements ApplicationService {
         try {
             newStatus = ApplicationStatus.valueOf(status.toUpperCase());
         } catch (Exception e) {
-            log.warn("Invalid status value={}", status);
+            log.warn("Invalid status");
             throw new InvalidStatusException("Invalid status. Allowed: APPLIED, SHORTLISTED, INTERVIEW_SCHEDULED, REJECTED");
         }
 
         if (app.getStatus() == ApplicationStatus.REJECTED) {
-            log.warn("Cannot update rejected application applicationId={}", applicationId);
+            log.warn("Cannot update rejected application");
             throw new AlreadyRejectedException("Cannot update a rejected application");
         }
 
         app.setStatus(newStatus);
         Application updated = repository.save(app);
-        log.info("Application status updated applicationId={} newStatus={}", applicationId, newStatus);
+        log.info("Application status updated");
         return map(updated);
     }
 
@@ -152,18 +148,18 @@ public class ApplicationServiceImpl implements ApplicationService {
     public void withdrawApplication(UUID applicationId, String email) {
         Application app = repository.findById(applicationId)
                 .orElseThrow(() -> {
-                    log.warn("Application not found applicationId={}", applicationId);
+                    log.warn("Application not found");
                     return new ResourceNotFoundException("Application not found");
                 });
         if (!app.getUserEmail().equals(email)) {
-            log.warn("Unauthorized withdraw attempt applicationId={} email={}", applicationId, email);
+            log.warn("Unauthorized withdraw attempt");
             throw new UnauthorizedException("You can only withdraw your own applications");
         }
         if (app.getStatus() != ApplicationStatus.APPLIED) {
             throw new InvalidStatusException("Only APPLIED applications can be withdrawn");
         }
         repository.delete(app);
-        log.info("Application withdrawn applicationId={} email={}", applicationId, email);
+        log.info("Application withdrawn");
     }
 }
 

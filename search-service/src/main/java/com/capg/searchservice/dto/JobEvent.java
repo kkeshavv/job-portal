@@ -12,7 +12,7 @@ public class JobEvent {
     private String jobType;
     private String experienceLevel;
 
-    public JobEvent() {}
+    public JobEvent() { /* default constructor for Jackson deserialization */ }
 
     public Long getJobId() { return jobId; }
     public void setJobId(Long jobId) { this.jobId = jobId; }

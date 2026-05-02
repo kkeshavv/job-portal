@@ -13,7 +13,7 @@ public class JobSearchResponse {
     private String experienceLevel;
     private String status;
 
-    public JobSearchResponse() {}
+    public JobSearchResponse() { /* default constructor for Jackson deserialization */ }
 
     public Long getJobId() { return jobId; }
     public void setJobId(Long jobId) { this.jobId = jobId; }

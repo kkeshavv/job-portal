@@ -1,6 +1,5 @@
 package com.capg.applicationservice.service;
 
-import com.capg.applicationservice.client.JobClient;
 import com.capg.applicationservice.dto.request.ApplicationRequest;
 import com.capg.applicationservice.dto.response.ApplicationResponse;
 import com.capg.applicationservice.entity.Application;
@@ -37,7 +36,6 @@ import static org.mockito.Mockito.*;
 class ApplicationServiceImplTest {
 
     @Mock private ApplicationRepository repository;
-    @Mock private JobClient jobClient;
     @Mock private RabbitTemplate rabbitTemplate;
     @Mock private ApplicationMapper applicationMapper;
 
@@ -53,7 +51,6 @@ class ApplicationServiceImplTest {
         Application saved = new Application(appId, 1L, "seeker@test.com", ApplicationStatus.APPLIED, now);
         ApplicationResponse expectedResponse = new ApplicationResponse(appId, 1L, "seeker@test.com", ApplicationStatus.APPLIED, now);
 
-        when(jobClient.getJobById(1L)).thenReturn(new Object());
         when(repository.existsByJobIdAndUserEmail(1L, "seeker@test.com")).thenReturn(false);
         when(repository.save(any(Application.class))).thenReturn(saved);
         when(applicationMapper.toResponse(saved)).thenReturn(expectedResponse);
@@ -82,7 +79,6 @@ class ApplicationServiceImplTest {
     void apply_duplicateApplication_throwsException() {
         ApplicationRequest request = new ApplicationRequest(1L);
 
-        when(jobClient.getJobById(1L)).thenReturn(new Object());
         when(repository.existsByJobIdAndUserEmail(1L, "seeker@test.com")).thenReturn(true);
 
         AlreadyAppliedException ex = assertThrows(AlreadyAppliedException.class,
@@ -210,7 +206,6 @@ class ApplicationServiceImplTest {
         Application saved = new Application(appId, 1L, "seeker@test.com", ApplicationStatus.APPLIED, now);
         ApplicationResponse expectedResponse = new ApplicationResponse(appId, 1L, "seeker@test.com", ApplicationStatus.APPLIED, now);
 
-        when(jobClient.getJobById(1L)).thenReturn(new Object());
         when(repository.existsByJobIdAndUserEmail(1L, "seeker@test.com")).thenReturn(false);
         when(repository.save(any(Application.class))).thenReturn(saved);
         when(applicationMapper.toResponse(saved)).thenReturn(expectedResponse);

@@ -31,6 +31,7 @@ public class JobServiceImpl implements JobService {
     private final RabbitTemplate rabbitTemplate;
     private final JobMapper jobMapper;
 
+    private static final String JOB_NOT_FOUND      = "Job not found";
     private static final String EXCHANGE           = "jobportal.exchange";
     private static final String ROUTING_KEY        = "job.created";
     private static final String CLOSED_ROUTING_KEY = "job.closed";
@@ -93,7 +94,7 @@ public class JobServiceImpl implements JobService {
     @Transactional
     public JobResponse updateJob(Long jobId, JobRequest request, String email) {
         Job job = jobRepository.findById(jobId)
-                .orElseThrow(() -> new JobNotFoundException("Job not found"));
+                .orElseThrow(() -> new JobNotFoundException(JOB_NOT_FOUND));
         if (!job.getCreatedBy().equals(email)) {
             throw new UnauthorizedException("You can only edit your own jobs");
         }
@@ -119,7 +120,7 @@ public class JobServiceImpl implements JobService {
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> {
                     log.warn("Job not found");
-                    return new JobNotFoundException("Job not found");
+                    return new JobNotFoundException(JOB_NOT_FOUND);
                 });
 
         return jobMapper.toResponse(job);
@@ -154,7 +155,7 @@ public class JobServiceImpl implements JobService {
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> {
                     log.warn("Close failed - job not found");
-                    return new JobNotFoundException("Job not found");
+                    return new JobNotFoundException(JOB_NOT_FOUND);
                 });
 
         job.setStatus("CLOSED");

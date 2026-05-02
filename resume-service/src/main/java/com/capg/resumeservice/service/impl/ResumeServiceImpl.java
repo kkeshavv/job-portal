@@ -32,6 +32,7 @@ public class ResumeServiceImpl implements ResumeService {
 
     private static final Logger log = LoggerFactory.getLogger(ResumeServiceImpl.class);
     private static final String JOB_SEEKER = "JOB_SEEKER";
+    private static final String RESUME_NOT_FOUND = "Resume not found";
 
     private final ResumeRepository resumeRepository;
     private final RabbitTemplate rabbitTemplate;
@@ -74,7 +75,7 @@ public class ResumeServiceImpl implements ResumeService {
         Resume resume = resumeRepository.findById(resumeId)
                 .orElseThrow(() -> {
                     log.warn("Resume not found");
-                    return new ResumeNotFoundException("Resume not found");
+                    return new ResumeNotFoundException(RESUME_NOT_FOUND);
                 });
 
         if (JOB_SEEKER.equals(role) && !resume.getUserEmail().equals(email)) {
@@ -189,7 +190,7 @@ public class ResumeServiceImpl implements ResumeService {
     public void deleteResume(Long resumeId, String email) {
         log.info("Deleting resume");
         Resume resume = resumeRepository.findById(resumeId)
-                .orElseThrow(() -> new ResumeNotFoundException("Resume not found"));
+                .orElseThrow(() -> new ResumeNotFoundException(RESUME_NOT_FOUND));
 
         if (!resume.getUserEmail().equals(email)) {
             log.warn("Unauthorized delete attempt");
