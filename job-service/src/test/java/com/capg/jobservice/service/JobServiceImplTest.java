@@ -247,4 +247,75 @@ class JobServiceImplTest {
         assertNotNull(result);
         assertEquals("CLOSED", result.getStatus());
     }
+
+    @Test
+    void updateJob_success() {
+        JobRequest request = new JobRequest();
+        request.setTitle("Updated Developer");
+        request.setCompany("Tech Corp");
+        request.setLocation("Bangalore");
+
+        Job existing = new Job(1L, "Java Developer", "Tech Corp", "Bangalore",
+                null, null, "OPEN", "recruiter@test.com", LocalDateTime.now(), LocalDateTime.now());
+        Job updated = new Job(1L, "Updated Developer", "Tech Corp", "Bangalore",
+                null, null, "OPEN", "recruiter@test.com", LocalDateTime.now(), LocalDateTime.now());
+
+        when(jobRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(jobRepository.save(any(Job.class))).thenReturn(updated);
+        when(jobMapper.toResponse(updated)).thenReturn(new JobResponse(
+                1L, "Updated Developer", "Tech Corp", "Bangalore",
+                null, null, "OPEN", "recruiter@test.com", updated.getCreatedAt()));
+
+        JobResponse result = jobService.updateJob(1L, request, "recruiter@test.com");
+
+        assertNotNull(result);
+        assertEquals("Updated Developer", result.getTitle());
+        verify(jobRepository).save(any(Job.class));
+    }
+
+    @Test
+    void updateJob_notOwner_throwsException() {
+        JobRequest request = new JobRequest();
+        request.setTitle("Updated");
+        request.setCompany("Corp");
+        request.setLocation("City");
+
+        Job existing = new Job(1L, "Java Developer", "Tech Corp", "Bangalore",
+                null, null, "OPEN", "recruiter@test.com", LocalDateTime.now(), LocalDateTime.now());
+
+        when(jobRepository.findById(1L)).thenReturn(Optional.of(existing));
+
+        assertThrows(UnauthorizedException.class,
+                () -> jobService.updateJob(1L, request, "other@test.com"));
+
+        verify(jobRepository, never()).save(any());
+    }
+
+    @Test
+    void updateJob_notFound_throwsException() {
+        JobRequest request = new JobRequest();
+        when(jobRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(JobNotFoundException.class,
+                () -> jobService.updateJob(99L, request, "recruiter@test.com"));
+    }
+
+    @Test
+    void getJobsByRecruiter_returnsPage() {
+        Job job = new Job(1L, "Java Developer", "Tech Corp", "Bangalore",
+                null, null, "OPEN", "recruiter@test.com", LocalDateTime.now(), LocalDateTime.now());
+
+        Page<Job> jobPage = new PageImpl<>(List.of(job), PageRequest.of(0, 10), 1);
+        when(jobRepository.findByCreatedByOrderByCreatedAtDesc(anyString(), any(PageRequest.class)))
+                .thenReturn(jobPage);
+        when(jobMapper.toResponse(any(Job.class))).thenReturn(new JobResponse(
+                1L, "Java Developer", "Tech Corp", "Bangalore",
+                null, null, "OPEN", "recruiter@test.com", job.getCreatedAt()));
+
+        Page<JobResponse> result = jobService.getJobsByRecruiter("recruiter@test.com", 0, 10);
+
+        assertNotNull(result);
+        assertEquals(1, result.getTotalElements());
+        verify(jobRepository).findByCreatedByOrderByCreatedAtDesc(anyString(), any(PageRequest.class));
+    }
 }
