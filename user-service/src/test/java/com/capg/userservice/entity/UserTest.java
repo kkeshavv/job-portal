@@ -44,4 +44,16 @@ class UserTest {
         assertEquals(1L, user.getId());
         assertEquals("Test", user.getName());
     }
+
+    @Test
+    void user_mobileSkillsHeadline_gettersSettersWork() {
+        User user = new User();
+        user.setMobile("9999999999");
+        user.setSkills("Java, Spring");
+        user.setHeadline("Software Engineer");
+
+        assertEquals("9999999999", user.getMobile());
+        assertEquals("Java, Spring", user.getSkills());
+        assertEquals("Software Engineer", user.getHeadline());
+    }
 }

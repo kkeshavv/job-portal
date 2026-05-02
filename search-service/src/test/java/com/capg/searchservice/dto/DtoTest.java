@@ -15,6 +15,8 @@ class DtoTest {
         event.setLocation("Bangalore");
         event.setSkills("Java, Spring");
         event.setSalary(1000000.0);
+        event.setJobType("Full-time");
+        event.setExperienceLevel("Mid-Senior level");
 
         assertEquals(1L, event.getJobId());
         assertEquals("Java Developer", event.getTitle());
@@ -23,6 +25,8 @@ class DtoTest {
         assertEquals("Bangalore", event.getLocation());
         assertEquals("Java, Spring", event.getSkills());
         assertEquals(1000000.0, event.getSalary());
+        assertEquals("Full-time", event.getJobType());
+        assertEquals("Mid-Senior level", event.getExperienceLevel());
     }
 
     @Test

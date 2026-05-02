@@ -75,4 +75,16 @@ class DtoTest {
         assertEquals(1L, res.getId());
         assertEquals("John", res.getName());
     }
+
+    @Test
+    void userResponse_mobileSkillsHeadline_gettersSettersWork() {
+        UserResponse res = new UserResponse();
+        res.setMobile("9999999999");
+        res.setSkills("Java, Spring");
+        res.setHeadline("Software Engineer");
+
+        assertEquals("9999999999", res.getMobile());
+        assertEquals("Java, Spring", res.getSkills());
+        assertEquals("Software Engineer", res.getHeadline());
+    }
 }

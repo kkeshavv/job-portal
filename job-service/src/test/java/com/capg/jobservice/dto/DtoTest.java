@@ -18,6 +18,8 @@ class DtoTest {
         event.setLocation("Bangalore");
         event.setSalary(1000000.0);
         event.setCreatedBy("recruiter@test.com");
+        event.setJobType("Full-time");
+        event.setExperienceLevel("Mid-Senior level");
 
         assertEquals(1L, event.getJobId());
         assertEquals("Java Developer", event.getTitle());
@@ -26,6 +28,8 @@ class DtoTest {
         assertEquals("Bangalore", event.getLocation());
         assertEquals(1000000.0, event.getSalary());
         assertEquals("recruiter@test.com", event.getCreatedBy());
+        assertEquals("Full-time", event.getJobType());
+        assertEquals("Mid-Senior level", event.getExperienceLevel());
     }
 
     @Test
@@ -67,6 +71,8 @@ class DtoTest {
         res.setStatus("CLOSED");
         res.setCreatedBy("other@test.com");
         res.setCreatedAt(now);
+        res.setJobType("Part-time");
+        res.setExperienceLevel("Entry level");
 
         assertEquals(2L, res.getJobId());
         assertEquals("Python Developer", res.getTitle());
@@ -76,6 +82,8 @@ class DtoTest {
         assertEquals("Django", res.getDescription());
         assertEquals("CLOSED", res.getStatus());
         assertEquals("other@test.com", res.getCreatedBy());
+        assertEquals("Part-time", res.getJobType());
+        assertEquals("Entry level", res.getExperienceLevel());
     }
 
     @Test
