@@ -24,6 +24,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 
 @WebMvcTest(ResumeController.class)
 class ResumeControllerTest {
@@ -121,5 +122,31 @@ class ResumeControllerTest {
 
         mockMvc.perform(get("/api/resumes/download/test.pdf"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void downloadResume_nonPdfFile_returnsOctetStream(@TempDir Path tempDir) throws Exception {
+        Path file = tempDir.resolve("test.docx");
+        Files.write(file, "docx content".getBytes());
+
+        org.springframework.test.util.ReflectionTestUtils.setField(
+                mockMvc.getDispatcherServlet().getWebApplicationContext()
+                        .getBean(ResumeController.class),
+                "uploadDir", tempDir.toString());
+
+        mockMvc.perform(get("/api/resumes/download/test.docx"))
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, "application/octet-stream"));
+    }
+
+    @Test
+    void downloadResume_invalidPath_returns500() throws Exception {
+        org.springframework.test.util.ReflectionTestUtils.setField(
+                mockMvc.getDispatcherServlet().getWebApplicationContext()
+                        .getBean(ResumeController.class),
+                "uploadDir", "\u0000invalid");
+
+        mockMvc.perform(get("/api/resumes/download/test.pdf"))
+                .andExpect(status().isInternalServerError());
     }
 }
