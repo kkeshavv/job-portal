@@ -353,78 +353,11 @@ services:
     environment:
       SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8888"
       SPRING_CLOUD_CONFIG_FAILFAST: "false"
-      SPRING_CLOUD_CONFIG_ENABLED: "false"
       SPRING_PROFILES_ACTIVE: docker
       CONFIG_SERVER_URL: http://config-server:8888
       SERVER_PORT: 8080
       JWT_SECRET: mysecretkeymysecretkeymysecretkey
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
-      SPRING_CLOUD_GATEWAY_ROUTES[0]_ID: user-service
-      SPRING_CLOUD_GATEWAY_ROUTES[0]_URI: http://user-service:8081
-      SPRING_CLOUD_GATEWAY_ROUTES[0]_PREDICATES[0]: Path=/api/users/**
-      SPRING_CLOUD_GATEWAY_ROUTES[1]_ID: job-service
-      SPRING_CLOUD_GATEWAY_ROUTES[1]_URI: http://job-service:8082
-      SPRING_CLOUD_GATEWAY_ROUTES[1]_PREDICATES[0]: Path=/api/jobs/**
-      SPRING_CLOUD_GATEWAY_ROUTES[2]_ID: application-service
-      SPRING_CLOUD_GATEWAY_ROUTES[2]_URI: http://application-service:8083
-      SPRING_CLOUD_GATEWAY_ROUTES[2]_PREDICATES[0]: Path=/api/applications/**
-      SPRING_CLOUD_GATEWAY_ROUTES[3]_ID: resume-service
-      SPRING_CLOUD_GATEWAY_ROUTES[3]_URI: http://resume-service:8084
-      SPRING_CLOUD_GATEWAY_ROUTES[3]_PREDICATES[0]: Path=/api/resumes/**
-      SPRING_CLOUD_GATEWAY_ROUTES[4]_ID: search-service
-      SPRING_CLOUD_GATEWAY_ROUTES[4]_URI: http://search-service:8086
-      SPRING_CLOUD_GATEWAY_ROUTES[4]_PREDICATES[0]: Path=/search/**
-      SPRING_CLOUD_GATEWAY_ROUTES[5]_ID: analytics-service
-      SPRING_CLOUD_GATEWAY_ROUTES[5]_URI: http://analytics-service:8087
-      SPRING_CLOUD_GATEWAY_ROUTES[5]_PREDICATES[0]: Path=/analytics/**
-      SPRING_CLOUD_GATEWAY_ROUTES[6]_ID: ai-service
-      SPRING_CLOUD_GATEWAY_ROUTES[6]_URI: http://ai-service:8089
-      SPRING_CLOUD_GATEWAY_ROUTES[6]_PREDICATES[0]: Path=/api/ai/**
-      SPRING_CLOUD_GATEWAY_ROUTES[7]_ID: user-service-docs
-      SPRING_CLOUD_GATEWAY_ROUTES[7]_URI: http://user-service:8081
-      SPRING_CLOUD_GATEWAY_ROUTES[7]_PREDICATES[0]: Path=/user-service/v3/api-docs
-      SPRING_CLOUD_GATEWAY_ROUTES[7]_FILTERS[0]: RewritePath=/user-service/v3/api-docs,/v3/api-docs
-      SPRING_CLOUD_GATEWAY_ROUTES[8]_ID: job-service-docs
-      SPRING_CLOUD_GATEWAY_ROUTES[8]_URI: http://job-service:8082
-      SPRING_CLOUD_GATEWAY_ROUTES[8]_PREDICATES[0]: Path=/job-service/v3/api-docs
-      SPRING_CLOUD_GATEWAY_ROUTES[8]_FILTERS[0]: RewritePath=/job-service/v3/api-docs,/v3/api-docs
-      SPRING_CLOUD_GATEWAY_ROUTES[9]_ID: application-service-docs
-      SPRING_CLOUD_GATEWAY_ROUTES[9]_URI: http://application-service:8083
-      SPRING_CLOUD_GATEWAY_ROUTES[9]_PREDICATES[0]: Path=/application-service/v3/api-docs
-      SPRING_CLOUD_GATEWAY_ROUTES[9]_FILTERS[0]: RewritePath=/application-service/v3/api-docs,/v3/api-docs
-      SPRING_CLOUD_GATEWAY_ROUTES[10]_ID: resume-service-docs
-      SPRING_CLOUD_GATEWAY_ROUTES[10]_URI: http://resume-service:8084
-      SPRING_CLOUD_GATEWAY_ROUTES[10]_PREDICATES[0]: Path=/resume-service/v3/api-docs
-      SPRING_CLOUD_GATEWAY_ROUTES[10]_FILTERS[0]: RewritePath=/resume-service/v3/api-docs,/v3/api-docs
-      SPRING_CLOUD_GATEWAY_ROUTES[11]_ID: search-service-docs
-      SPRING_CLOUD_GATEWAY_ROUTES[11]_URI: http://search-service:8086
-      SPRING_CLOUD_GATEWAY_ROUTES[11]_PREDICATES[0]: Path=/search-service/v3/api-docs
-      SPRING_CLOUD_GATEWAY_ROUTES[11]_FILTERS[0]: RewritePath=/search-service/v3/api-docs,/v3/api-docs
-      SPRING_CLOUD_GATEWAY_ROUTES[12]_ID: analytics-service-docs
-      SPRING_CLOUD_GATEWAY_ROUTES[12]_URI: http://analytics-service:8087
-      SPRING_CLOUD_GATEWAY_ROUTES[12]_PREDICATES[0]: Path=/analytics-service/v3/api-docs
-      SPRING_CLOUD_GATEWAY_ROUTES[12]_FILTERS[0]: RewritePath=/analytics-service/v3/api-docs,/v3/api-docs
-      SPRING_CLOUD_GATEWAY_ROUTES[13]_ID: notification-service
-      SPRING_CLOUD_GATEWAY_ROUTES[13]_URI: http://notification-service:8085
-      SPRING_CLOUD_GATEWAY_ROUTES[13]_PREDICATES[0]: Path=/notifications/**
-      SPRING_CLOUD_GATEWAY_ROUTES[14]_ID: notification-service-docs
-      SPRING_CLOUD_GATEWAY_ROUTES[14]_URI: http://notification-service:8085
-      SPRING_CLOUD_GATEWAY_ROUTES[14]_PREDICATES[0]: Path=/notification-service/v3/api-docs
-      SPRING_CLOUD_GATEWAY_ROUTES[14]_FILTERS[0]: RewritePath=/notification-service/v3/api-docs,/v3/api-docs
-      SPRINGDOC_SWAGGER_UI_URLS[0]_NAME: User Service
-      SPRINGDOC_SWAGGER_UI_URLS[0]_URL: /user-service/v3/api-docs
-      SPRINGDOC_SWAGGER_UI_URLS[1]_NAME: Job Service
-      SPRINGDOC_SWAGGER_UI_URLS[1]_URL: /job-service/v3/api-docs
-      SPRINGDOC_SWAGGER_UI_URLS[2]_NAME: Application Service
-      SPRINGDOC_SWAGGER_UI_URLS[2]_URL: /application-service/v3/api-docs
-      SPRINGDOC_SWAGGER_UI_URLS[3]_NAME: Resume Service
-      SPRINGDOC_SWAGGER_UI_URLS[3]_URL: /resume-service/v3/api-docs
-      SPRINGDOC_SWAGGER_UI_URLS[4]_NAME: Search Service
-      SPRINGDOC_SWAGGER_UI_URLS[4]_URL: /search-service/v3/api-docs
-      SPRINGDOC_SWAGGER_UI_URLS[5]_NAME: Analytics Service
-      SPRINGDOC_SWAGGER_UI_URLS[5]_URL: /analytics-service/v3/api-docs
-      SPRINGDOC_SWAGGER_UI_URLS[6]_NAME: Notification Service
-      SPRINGDOC_SWAGGER_UI_URLS[6]_URL: /notification-service/v3/api-docs
     depends_on:
       eureka-server:
         condition: service_healthy
