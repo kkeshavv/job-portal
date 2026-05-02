@@ -216,6 +216,29 @@ jobs:
           docker build --no-cache -t $DOCKER_USERNAME/eureka-server:latest ./eureka-server
           docker push $DOCKER_USERNAME/eureka-server:latest
 
+  build-ai-service:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+      - name: Docker Login
+        run: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      - name: Build ai-service
+        run: cd ai-service && chmod +x mvnw && ./mvnw package -DskipTests -q
+      - name: Build & Push Docker image
+        run: |
+          docker build --no-cache -t $DOCKER_USERNAME/ai-service:latest ./ai-service
+          docker push $DOCKER_USERNAME/ai-service:latest
+
   build-config-server:
     runs-on: ubuntu-latest
     env:
