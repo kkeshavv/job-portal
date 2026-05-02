@@ -106,6 +106,7 @@ services:
       SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8888"
       SPRING_CLOUD_CONFIG_FAILFAST: "false"
       SPRING_PROFILES_ACTIVE: docker
+      CONFIG_SERVER_URL: http://config-server:8888
       SERVER_PORT: 8081
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/jobportal_user_db
       SPRING_DATASOURCE_USERNAME: postgres
@@ -136,6 +137,7 @@ services:
       SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8888"
       SPRING_CLOUD_CONFIG_FAILFAST: "false"
       SPRING_PROFILES_ACTIVE: docker
+      CONFIG_SERVER_URL: http://config-server:8888
       SERVER_PORT: 8082
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/jobportal_job_db
       SPRING_DATASOURCE_USERNAME: postgres
@@ -174,6 +176,7 @@ services:
       SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8888"
       SPRING_CLOUD_CONFIG_FAILFAST: "false"
       SPRING_PROFILES_ACTIVE: docker
+      CONFIG_SERVER_URL: http://config-server:8888
       SERVER_PORT: 8083
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/application_db
       SPRING_DATASOURCE_USERNAME: postgres
@@ -210,6 +213,7 @@ services:
       SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8888"
       SPRING_CLOUD_CONFIG_FAILFAST: "false"
       SPRING_PROFILES_ACTIVE: docker
+      CONFIG_SERVER_URL: http://config-server:8888
       SERVER_PORT: 8084
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/jobportal_resume
       SPRING_DATASOURCE_USERNAME: postgres
@@ -221,6 +225,10 @@ services:
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: guest
       SPRING_RABBITMQ_PASSWORD: guest
+      SPRING_SERVLET_MULTIPART_ENABLED: "true"
+      SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: 10MB
+      SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 10MB
+      RESUME_UPLOAD_DIR: /app/uploads/resumes
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
     depends_on:
       postgres:
@@ -243,6 +251,7 @@ services:
       SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8888"
       SPRING_CLOUD_CONFIG_FAILFAST: "false"
       SPRING_PROFILES_ACTIVE: docker
+      CONFIG_SERVER_URL: http://config-server:8888
       SERVER_PORT: 8085
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
@@ -268,6 +277,7 @@ services:
       SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8888"
       SPRING_CLOUD_CONFIG_FAILFAST: "false"
       SPRING_PROFILES_ACTIVE: docker
+      CONFIG_SERVER_URL: http://config-server:8888
       SERVER_PORT: 8086
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/job_search_db
       SPRING_DATASOURCE_USERNAME: postgres
@@ -301,6 +311,7 @@ services:
       SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8888"
       SPRING_CLOUD_CONFIG_FAILFAST: "false"
       SPRING_PROFILES_ACTIVE: docker
+      CONFIG_SERVER_URL: http://config-server:8888
       SERVER_PORT: 8087
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/analytics_db
       SPRING_DATASOURCE_USERNAME: postgres
@@ -334,6 +345,7 @@ services:
       SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8888"
       SPRING_CLOUD_CONFIG_FAILFAST: "false"
       SPRING_PROFILES_ACTIVE: docker
+      CONFIG_SERVER_URL: http://config-server:8888
       SERVER_PORT: 8089
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
       GEMINI_API_KEY: AIzaSyC4SUqlilk1qCrYlCubifQQWcdYedcr0g8
