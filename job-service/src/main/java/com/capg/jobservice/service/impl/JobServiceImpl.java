@@ -47,7 +47,7 @@ public class JobServiceImpl implements JobService {
     public JobResponse createJob(JobRequest request, String email, String role) {
 
         if (!"RECRUITER".equals(role)) {
-            log.warn("Unauthorized job creation attempt email={} role={}", email, role);
+            log.warn("Unauthorized job creation attempt");
             throw new UnauthorizedException("Only recruiters can create jobs");
         }
 
@@ -65,7 +65,7 @@ public class JobServiceImpl implements JobService {
         job.setUpdatedAt(LocalDateTime.now());
 
         Job saved = jobRepository.save(job);
-        log.info("Job created successfully jobId={} title={} recruiter={}", saved.getJobId(), saved.getTitle(), email);
+        log.info("Job created successfully");
 
         try {
             JobEvent event = new JobEvent();
@@ -106,7 +106,7 @@ public class JobServiceImpl implements JobService {
         job.setExperienceLevel(request.getExperienceLevel());
         job.setUpdatedAt(LocalDateTime.now());
         Job saved = jobRepository.save(job);
-        log.info("Job updated jobId={} recruiter={}", saved.getJobId(), email);
+        log.info("Job updated");
         return jobMapper.toResponse(saved);
     }
 
@@ -114,11 +114,11 @@ public class JobServiceImpl implements JobService {
     @Override
     @Cacheable(value = "jobs", key = "#jobId")
     public JobResponse getJobById(Long jobId) {
-        log.debug("Fetching job from DB jobId={}", jobId);
+        log.debug("Fetching job from DB");
 
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> {
-                    log.warn("Job not found jobId={}", jobId);
+                    log.warn("Job not found");
                     return new JobNotFoundException("Job not found");
                 });
 
@@ -128,7 +128,7 @@ public class JobServiceImpl implements JobService {
     // GET ALL JOBS
     @Override
     public Page<JobResponse> getAllJobs(int page, int size) {
-        log.debug("Fetching all jobs from DB page={} size={}", page, size);
+        log.debug("Fetching all jobs from DB");
         return jobRepository.findAll(PageRequest.of(page, size))
                 .map(jobMapper::toResponse);
     }
@@ -136,7 +136,7 @@ public class JobServiceImpl implements JobService {
     // GET JOBS BY RECRUITER
     @Override
     public Page<JobResponse> getJobsByRecruiter(String email, int page, int size) {
-        log.debug("Fetching jobs by recruiter email={} page={} size={}", email, page, size);
+        log.debug("Fetching jobs by recruiter");
         return jobRepository.findByCreatedByOrderByCreatedAtDesc(email, PageRequest.of(page, size))
                 .map(jobMapper::toResponse);
     }
@@ -147,13 +147,13 @@ public class JobServiceImpl implements JobService {
     public JobResponse closeJob(Long jobId, String role) {
 
         if (!"RECRUITER".equals(role)) {
-            log.warn("Unauthorized job close attempt role={}", role);
+            log.warn("Unauthorized job close attempt");
             throw new UnauthorizedException("Only recruiters can close jobs");
         }
 
         Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> {
-                    log.warn("Close failed - job not found jobId={}", jobId);
+                    log.warn("Close failed - job not found");
                     return new JobNotFoundException("Job not found");
                 });
 
@@ -161,7 +161,7 @@ public class JobServiceImpl implements JobService {
         job.setUpdatedAt(LocalDateTime.now());
 
         Job saved = jobRepository.save(job);
-        log.info("Job closed successfully jobId={}", saved.getJobId());
+        log.info("Job closed successfully");
 
         try {
             JobClosedEvent event = new JobClosedEvent(saved.getJobId(), saved.getTitle(), "CLOSED", saved.getCreatedBy());

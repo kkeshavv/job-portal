@@ -61,7 +61,7 @@ public class ResumeServiceImpl implements ResumeService {
         resume.setUploadedAt(LocalDateTime.now());
 
         Resume saved = resumeRepository.save(resume);
-        log.info("Resume saved resumeId={}", saved.getResumeId());
+        log.info("Resume saved");
 
         publishResumeEvent(saved, email);
 
@@ -70,15 +70,15 @@ public class ResumeServiceImpl implements ResumeService {
 
     @Override
     public ResumeResponse getResumeById(Long resumeId, String email, String role) {
-        log.debug("Fetching resume resumeId={}", resumeId);
+        log.debug("Fetching resume");
         Resume resume = resumeRepository.findById(resumeId)
                 .orElseThrow(() -> {
-                    log.warn("Resume not found resumeId={}", resumeId);
+                    log.warn("Resume not found");
                     return new ResumeNotFoundException("Resume not found");
                 });
 
         if (JOB_SEEKER.equals(role) && !resume.getUserEmail().equals(email)) {
-            log.warn("Unauthorized resume access resumeId={}", resumeId);
+            log.warn("Unauthorized resume access");
             throw new UnauthorizedException("You can only view your own resumes");
         }
 
@@ -149,7 +149,7 @@ public class ResumeServiceImpl implements ResumeService {
             throw new IllegalArgumentException("Invalid file path");
         }
         Files.copy(file.getInputStream(), filePath);
-        log.info("File saved as fileName={}", fileName);
+        log.info("File saved");
 
         String fileUrl = "/uploads/resumes/" + fileName;
 
@@ -159,7 +159,7 @@ public class ResumeServiceImpl implements ResumeService {
         resume.setUploadedAt(LocalDateTime.now());
 
         Resume saved = resumeRepository.save(resume);
-        log.info("Resume file saved resumeId={}", saved.getResumeId());
+        log.info("Resume file saved");
 
         publishResumeEvent(saved, email);
 
@@ -178,25 +178,25 @@ public class ResumeServiceImpl implements ResumeService {
                     saved.getFileUrl()
             );
             rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, RabbitMQConfig.RESUME_KEY, event);
-            log.info("RabbitMQ event published resumeId={}", saved.getResumeId());
+            log.info("RabbitMQ event published");
         } catch (Exception e) {
-            log.error("RabbitMQ publish failed resumeId={}", saved.getResumeId(), e);
+            log.error("RabbitMQ publish failed", e);
         }
     }
 
     @Override
     @Transactional
     public void deleteResume(Long resumeId, String email) {
-        log.info("Deleting resume resumeId={}", resumeId);
+        log.info("Deleting resume");
         Resume resume = resumeRepository.findById(resumeId)
                 .orElseThrow(() -> new ResumeNotFoundException("Resume not found"));
 
         if (!resume.getUserEmail().equals(email)) {
-            log.warn("Unauthorized delete attempt resumeId={}", resumeId);
+            log.warn("Unauthorized delete attempt");
             throw new UnauthorizedException("You can only delete your own resumes");
         }
 
         resumeRepository.delete(resume);
-        log.info("Resume deleted resumeId={}", resumeId);
+        log.info("Resume deleted");
     }
 }
