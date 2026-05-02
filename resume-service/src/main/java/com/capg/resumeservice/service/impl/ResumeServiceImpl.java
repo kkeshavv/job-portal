@@ -136,7 +136,7 @@ public class ResumeServiceImpl implements ResumeService {
             throw new IllegalArgumentException("Only PDF, DOC, DOCX files are allowed");
         }
 
-        Path uploadPath = Paths.get(uploadDir);
+        Path uploadPath = Paths.get(uploadDir).toAbsolutePath();
         try {
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
@@ -145,8 +145,8 @@ public class ResumeServiceImpl implements ResumeService {
         // Sanitize filename to prevent path traversal
         String sanitizedBase = baseName.replaceAll("[^a-zA-Z0-9._-]", "_");
         String fileName = sanitizedBase + "_" + System.currentTimeMillis() + extension;
-        Path filePath = uploadPath.resolve(fileName).normalize();
-        if (!filePath.startsWith(uploadPath.toAbsolutePath())) {
+        Path filePath = uploadPath.toAbsolutePath().resolve(fileName).normalize();
+        if (!filePath.startsWith(uploadPath.toAbsolutePath().normalize())) {
             throw new IllegalArgumentException("Invalid file path");
         }
         Files.copy(file.getInputStream(), filePath);

@@ -204,6 +204,8 @@ services:
     container_name: resume-service
     ports:
       - "8084:8084"
+    volumes:
+      - resume_uploads:/app/uploads/resumes
     environment:
       SPRING_CONFIG_IMPORT: "optional:configserver:http://config-server:8888"
       SPRING_CLOUD_CONFIG_FAILFAST: "false"
@@ -334,7 +336,7 @@ services:
       SPRING_PROFILES_ACTIVE: docker
       SERVER_PORT: 8089
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
-      GEMINI_API_KEY: AIzaSyCuvNT6PNGAUIcbYvv7OwOy9cmU3o8ohjM
+      GEMINI_API_KEY: AIzaSyC4SUqlilk1qCrYlCubifQQWcdYedcr0g8
       GEMINI_API_URL: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
       RESUME_SERVICE_URL: http://resume-service:8084
     depends_on:
@@ -372,6 +374,7 @@ services:
 
 volumes:
   postgres_data:
+  resume_uploads:
 
 networks:
   jobportal-network:
