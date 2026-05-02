@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserResponse registerUser(UserRegisterRequest request) {
 
-        log.info("Registering new user role={}", request.getRole());
+        log.info("Registering new user");
 
         if (userRepository.existsByEmail(request.getEmail())) {
             log.warn("Registration failed - email already exists");
@@ -87,7 +87,7 @@ public class UserServiceImpl implements UserService {
             throw new InvalidCredentialsException("Invalid email or password");
         }
 
-        log.info("Login successful role={}", user.getRole());
+        log.info("Login successful");
         return jwtUtil.generateToken(user.getEmail(), user.getRole().name());
     }
     
@@ -103,16 +103,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse getUserById(Long id, String email, String role) {
-        log.debug("Fetching user by id={}", id);
+        log.debug("Fetching user by id");
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> {
-                    log.warn("User not found id={}", id);
+                    log.warn("User not found");
                     return new UserNotFoundException(USER_NOT_FOUND);
                 });
 
         if (!user.getEmail().equals(email) && !role.equals("ADMIN")) {
-            log.warn("Unauthorized profile access id={}", id);
+            log.warn("Unauthorized profile access");
             throw new UnauthorizedException("You can only view your own profile");
         }
 
@@ -123,16 +123,16 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserResponse updateUser(Long id, UpdateUserRequest request, String email, String role) {
 
-        log.info("Updating user id={}", id);
+        log.info("Updating user");
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> {
-                    log.warn("Update failed - user not found id={}", id);
+                    log.warn("Update failed - user not found");
                     return new UserNotFoundException(USER_NOT_FOUND);
                 });
 
         if (!user.getEmail().equals(email) && !role.equals("ADMIN")) {
-            log.warn("Unauthorized update attempt id={}", id);
+            log.warn("Unauthorized update attempt");
             throw new UnauthorizedException("You can only update your own profile");
         }
 
@@ -149,7 +149,7 @@ public class UserServiceImpl implements UserService {
         user.setUpdatedAt(LocalDateTime.now());
 
         User updated = userRepository.save(user);
-        log.info("User updated successfully userId={}", updated.getId());
+        log.info("User updated successfully");
 
         return userMapper.toResponse(updated);
     }

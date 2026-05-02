@@ -48,7 +48,7 @@ public class UserController {
             @PathVariable Long id,
             @Parameter(hidden = true) @RequestHeader("X-User-Email") String email,
             @Parameter(hidden = true) @RequestHeader("X-User-Role") String role) {
-        log.info("GET /api/users/{}", id);
+        log.info("GET /api/users by id");
         return ResponseEntity.ok(userService.getUserById(id, email, role));
     }
 
@@ -58,7 +58,7 @@ public class UserController {
             @Valid @RequestBody UpdateUserRequest request,
             @Parameter(hidden = true) @RequestHeader("X-User-Email") String email,
             @Parameter(hidden = true) @RequestHeader("X-User-Role") String role) {
-        log.info("PUT /api/users/{}", id);
+        log.info("PUT /api/users by id");
         return ResponseEntity.ok(userService.updateUser(id, request, email, role));
     }
 
@@ -73,7 +73,7 @@ public class UserController {
     public ResponseEntity<UserResponse> getUserByEmail(
             @PathVariable String userEmail,
             @Parameter(hidden = true) @RequestHeader("X-User-Role") String role) {
-        log.info("GET /api/users/by-email/{}", userEmail);
+        log.info("GET /api/users/by-email");
         if (!role.equals("RECRUITER") && !role.equals("ADMIN")) {
             return ResponseEntity.status(403).build();
         }

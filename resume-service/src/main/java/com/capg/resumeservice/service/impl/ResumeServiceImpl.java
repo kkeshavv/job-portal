@@ -141,9 +141,13 @@ public class ResumeServiceImpl implements ResumeService {
             Files.createDirectories(uploadPath);
         }
 
-        // Keep original filename, add timestamp only if file already exists
-        String fileName = baseName + "_" + System.currentTimeMillis() + extension;
-        Path filePath = uploadPath.resolve(fileName);
+        // Sanitize filename to prevent path traversal
+        String sanitizedBase = baseName.replaceAll("[^a-zA-Z0-9._-]", "_");
+        String fileName = sanitizedBase + "_" + System.currentTimeMillis() + extension;
+        Path filePath = uploadPath.resolve(fileName).normalize();
+        if (!filePath.startsWith(uploadPath.toAbsolutePath())) {
+            throw new IllegalArgumentException("Invalid file path");
+        }
         Files.copy(file.getInputStream(), filePath);
         log.info("File saved as fileName={}", fileName);
 
