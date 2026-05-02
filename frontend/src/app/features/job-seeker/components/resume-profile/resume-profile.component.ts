@@ -31,7 +31,57 @@ import { AiService } from '../../services/ai.service';
         <h1 class="text-2xl font-bold text-gray-900">Resume &amp; Profile</h1>
         <p class="text-sm text-gray-500 mt-1">Manage your professional details and application documents.</p>
       </div>
-      <button class="border border-gray-200 text-gray-700 px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-50">View Public Profile</button>
+      <button (click)="showPublicProfile = true" class="border border-gray-200 text-gray-700 px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-50">View Public Profile</button>
+    </div>
+
+    <!-- Public Profile Modal -->
+    <div *ngIf="showPublicProfile" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+        <div class="bg-blue-700 px-6 py-5 flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center text-white text-xl font-bold">
+              {{ profile?.name?.substring(0,2)?.toUpperCase() || 'U' }}
+            </div>
+            <div>
+              <p class="text-white font-bold text-lg">{{ profile?.name }}</p>
+              <p class="text-blue-200 text-sm">{{ profile?.email }}</p>
+            </div>
+          </div>
+          <button (click)="showPublicProfile = false" class="text-white/70 hover:text-white text-2xl leading-none">&times;</button>
+        </div>
+        <div class="p-6 space-y-4">
+          <div *ngIf="headline">
+            <p class="text-xs font-semibold text-gray-400 uppercase mb-1">Headline</p>
+            <p class="text-sm text-gray-800">{{ headline }}</p>
+          </div>
+          <div *ngIf="skills">
+            <p class="text-xs font-semibold text-gray-400 uppercase mb-2">Skills</p>
+            <div class="flex flex-wrap gap-2">
+              <span *ngFor="let skill of skills.split(',')" class="bg-blue-50 text-blue-700 text-xs px-3 py-1 rounded-full border border-blue-100">{{ skill.trim() }}</span>
+            </div>
+          </div>
+          <div *ngIf="profile?.mobile">
+            <p class="text-xs font-semibold text-gray-400 uppercase mb-1">Contact</p>
+            <p class="text-sm text-gray-800">{{ profile?.mobile }}</p>
+          </div>
+          <div *ngIf="activeResume">
+            <p class="text-xs font-semibold text-gray-400 uppercase mb-2">Resume</p>
+            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg cursor-pointer" (click)="openResume(activeResume.fileUrl)">
+              <span class="text-red-500 text-xl">📄</span>
+              <div>
+                <p class="text-sm font-medium text-blue-600 hover:underline">{{ getFileName(activeResume.fileUrl) }}</p>
+                <p class="text-xs text-gray-400">Uploaded {{ activeResume.uploadedAt | date:'MMM dd, yyyy' }}</p>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="!headline && !skills && !profile?.mobile && !activeResume" class="text-center py-4 text-gray-400 text-sm">
+            Your profile is empty. Add your headline, skills and resume to make it visible to recruiters.
+          </div>
+        </div>
+        <div class="px-6 pb-5">
+          <button (click)="showPublicProfile = false" class="w-full bg-blue-700 hover:bg-blue-800 text-white py-2.5 rounded-xl text-sm font-medium">Close</button>
+        </div>
+      </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -187,6 +237,7 @@ export class ResumeProfileComponent implements OnInit {
 
   analyzing = false;
   analysisResult: any = null;
+  showPublicProfile = false;
 
   constructor(
     private resumeService: ResumeService,
@@ -211,7 +262,8 @@ export class ResumeProfileComponent implements OnInit {
     this.resumeService.getProfile().subscribe({
       next: (res) => {
         this.profile = res;
-        this.headline = res.name || '';
+        this.headline = res.headline || res.name || '';
+        this.skills = res.skills || '';
         this.loading = false;
       },
       error: () => { this.loading = false; }
