@@ -6,12 +6,16 @@ import com.capg.resumeservice.service.ResumeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -103,5 +107,19 @@ class ResumeControllerTest {
     void downloadResume_notFound_returns404() throws Exception {
         mockMvc.perform(get("/api/resumes/download/nonexistent.pdf"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void downloadResume_existingFile_returns200(@TempDir Path tempDir) throws Exception {
+        Path file = tempDir.resolve("test.pdf");
+        Files.write(file, "pdf content".getBytes());
+
+        org.springframework.test.util.ReflectionTestUtils.setField(
+                mockMvc.getDispatcherServlet().getWebApplicationContext()
+                        .getBean(ResumeController.class),
+                "uploadDir", tempDir.toString());
+
+        mockMvc.perform(get("/api/resumes/download/test.pdf"))
+                .andExpect(status().isOk());
     }
 }

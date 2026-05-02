@@ -123,4 +123,14 @@ class JobControllerTest {
                 .header("X-User-Role", "RECRUITER"))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    void getAllJobs_recruiterRoleNullEmail_returnsAllJobs() throws Exception {
+        when(jobService.getAllJobs(0, 10))
+                .thenReturn(new PageImpl<>(List.of(buildResponse()), PageRequest.of(0, 10), 1));
+
+        mockMvc.perform(get("/api/jobs")
+                .header("X-User-Role", "RECRUITER"))
+                .andExpect(status().isOk());
+    }
 }

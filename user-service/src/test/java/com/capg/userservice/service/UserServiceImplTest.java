@@ -320,4 +320,26 @@ class UserServiceImplTest {
         assertNotNull(response);
         verify(passwordEncoder, never()).encode(anyString());
     }
+
+    @Test
+    void updateUser_withMobileSkillsHeadline_success() {
+        UpdateUserRequest request = new UpdateUserRequest();
+        request.setName("Updated Name");
+        request.setMobile("9999999999");
+        request.setSkills("Java, Spring");
+        request.setHeadline("Software Engineer");
+
+        User existingUser = buildUser(1L, "john@example.com", Role.JOB_SEEKER, true);
+        User updatedUser = buildUser(1L, "john@example.com", Role.JOB_SEEKER, true);
+        UserResponse expected = buildResponse(1L, "john@example.com", Role.JOB_SEEKER);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
+        when(userRepository.save(any(User.class))).thenReturn(updatedUser);
+        when(userMapper.toResponse(updatedUser)).thenReturn(expected);
+
+        UserResponse response = userService.updateUser(1L, request, "john@example.com", "JOB_SEEKER");
+
+        assertNotNull(response);
+        verify(userRepository).save(any(User.class));
+    }
 }
